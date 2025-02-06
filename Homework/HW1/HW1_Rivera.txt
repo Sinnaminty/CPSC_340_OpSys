@@ -1,0 +1,20 @@
+Script started on 2025-02-06 16:20:01-05:00 [TERM="xterm-256color" TTY="/dev/pts/1" COLUMNS="192" LINES="36"]
+[1m[38;5;118m[7m%[27m[1m[38;5;118m[0m[38;5;118m                                                                                                                                                                                                ]2;sin@uwu:~/repos/class/CPSC_340_OpSys]1;..PSC_340_OpSys]7;file://uwu/home/sin/repos/class/CPSC_340_OpSys\[0m[27m[24m[J[38;5;135msin[00m in [38;5;118m~/repos/class/CPSC_340_OpSys[00m on [38;5;81mmain[38;5;161m ●[00m[38;5;166m λ[00m [K[?1h=[?2004hggcc example.c[1m [0m[0m [?1l>[?2004l
+]2;gcc example.c]1;gcc[1m[7m%[27m[1m[0m                                                                                                                                                                                                ]2;sin@uwu:~/repos/class/CPSC_340_OpSys]1;..PSC_340_OpSys]7;file://uwu/home/sin/repos/class/CPSC_340_OpSys\[0m[27m[24m[J[38;5;135msin[00m in [38;5;118m~/repos/class/CPSC_340_OpSys[00m on [38;5;81mmain[38;5;161m ●[00m[38;5;166m λ[00m [K[?1h=[?2004hccat 
+[J[01;32ma.out[0m*      [Jexample.c   [Jtypescript[J[A[0m[27m[24m[48Ccat[K[1Cexample.c[1m [0m[0m [?1l>[?2004l
+[J]2;cat example.c]1;cat#include <stdio.h>
+#include <stdlib.h>
+
+int main() {
+  printf("Hello CPSC340-fall 2025\n");
+  printf("Aiden Rivera\n");
+  printf("Computer Science\n");
+  exit(0);
+}
+[1m[7m%[27m[1m[0m                                                                                                                                                                                                ]2;sin@uwu:~/repos/class/CPSC_340_OpSys]1;..PSC_340_OpSys]7;file://uwu/home/sin/repos/class/CPSC_340_OpSys\[0m[27m[24m[J[38;5;135msin[00m in [38;5;118m~/repos/class/CPSC_340_OpSys[00m on [38;5;81mmain[38;5;161m ●[00m[38;5;166m λ[00m [K[?1h=[?2004h../a.out[1m [0m[0m [?1l>[?2004l
+]2;./a.out]1;./a.outHello CPSC340-fall 2025
+Aiden Rivera
+Computer Science
+[1m[7m%[27m[1m[0m                                                                                                                                                                                                ]2;sin@uwu:~/repos/class/CPSC_340_OpSys]1;..PSC_340_OpSys]7;file://uwu/home/sin/repos/class/CPSC_340_OpSys\[0m[27m[24m[J[38;5;135msin[00m in [38;5;118m~/repos/class/CPSC_340_OpSys[00m on [38;5;81mmain[38;5;161m ●[00m[38;5;166m λ[00m [K[?1h=[?2004heexit[?1l>[?2004l
+]2;exit]1;exit
+Script done on 2025-02-06 16:20:16-05:00 [COMMAND_EXIT_CODE="0"]
