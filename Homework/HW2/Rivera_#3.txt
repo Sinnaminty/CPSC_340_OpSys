@@ -1,0 +1,112 @@
+Script started on 2025-02-06 18:34:24-05:00 [TERM="xterm-256color" TTY="/dev/pts/1" COLUMNS="192" LINES="36"]
+[1m[38;5;118m[7m%[27m[1m[38;5;118m[0m[38;5;118m                                                                                                                                                                                                ]2;sin@uwu:~/repos/class/CPSC_340_OpSys/Homework/HW2]1;../Homework/HW2]7;file://uwu/home/sin/repos/class/CPSC_340_OpSys/Homework/HW2\[0m[27m[24m[J[38;5;135msin[00m in [38;5;118m~/repos/class/CPSC_340_OpSys/Homework/HW2[00m on [38;5;81mmain[38;5;161m ●[00m[38;5;166m λ[00m [K[?1h=[?2004hggcc seq.c[1m [0m[0m -o sequential[?1l>[?2004l
+]2;gcc seq.c -o sequential]1;gcc[1m[7m%[27m[1m[0m                                                                                                                                                                                                ]2;sin@uwu:~/repos/class/CPSC_340_OpSys/Homework/HW2]1;../Homework/HW2]7;file://uwu/home/sin/repos/class/CPSC_340_OpSys/Homework/HW2\[0m[27m[24m[J[38;5;135msin[00m in [38;5;118m~/repos/class/CPSC_340_OpSys/Homework/HW2[00m on [38;5;81mmain[38;5;161m ●[00m[38;5;166m λ[00m [K[?1h=[?2004hggcc fan.c[1m [0m[0m -o fan[?1l>[?2004l
+]2;gcc fan.c -o fan]1;gcc[1m[7m%[27m[1m[0m                                                                                                                                                                                                ]2;sin@uwu:~/repos/class/CPSC_340_OpSys/Homework/HW2]1;../Homework/HW2]7;file://uwu/home/sin/repos/class/CPSC_340_OpSys/Homework/HW2\[0m[27m[24m[J[38;5;135msin[00m in [38;5;118m~/repos/class/CPSC_340_OpSys/Homework/HW2[00m on [38;5;81mmain[38;5;161m ●[00m[38;5;166m λ[00m [K[?1h=[?2004hlls -l[?1l>[?2004l
+]2;ls --color=tty -l]1;lstotal 40
+-rwxr-xr-x 1 sin sin 15832 Feb  6 18:34 [0m[01;32mfan[0m
+-rw-r--r-- 1 sin sin   881 Feb  6 18:33 fan.c
+-rw-r--r-- 1 sin sin   619 Feb  6 18:28 seq.c
+-rwxr-xr-x 1 sin sin 15832 Feb  6 18:34 [01;32msequential[0m
+-rw-r--r-- 1 sin sin     0 Feb  6 18:34 typescript
+[1m[7m%[27m[1m[0m                                                                                                                                                                                                ]2;sin@uwu:~/repos/class/CPSC_340_OpSys/Homework/HW2]1;../Homework/HW2]7;file://uwu/home/sin/repos/class/CPSC_340_OpSys/Homework/HW2\[0m[27m[24m[J[38;5;135msin[00m in [38;5;118m~/repos/class/CPSC_340_OpSys/Homework/HW2[00m on [38;5;81mmain[38;5;161m ●[00m[38;5;166m λ[00m [K[?1h=[?2004hccat seq
+[J[0mseq.c        [J[01;32msequential[0m*[J[A[0m[27m[24m[61Ccat seq[K.c[?1l>[?2004l
+[J]2;cat seq.c]1;cat#include <stdio.h>
+#include <stdlib.h>
+#include <sys/types.h>
+#include <sys/wait.h>
+#include <unistd.h>
+
+/**
+ * Aiden Rivera
+ * seq.c
+ * 2/6/25
+ */
+
+int main() {
+  pid_t pid = getpid();
+  int i;
+  printf("Sequential Process Creation: Original PID: %d\n", pid);
+
+  for (i = 0; i < 3; i++) {
+    pid = fork();
+    if (pid < 0) {
+      fprintf(stderr, "Fork Failed!\n");
+      exit(1);
+    }
+    if (pid == 0) {
+      // We're the child.
+      printf("Child: %d created by Parent: %d\n", getpid(), getppid());
+      sleep(1);
+    } else {
+      // We're the parent.
+      wait(NULL);
+      break;
+    }
+  }
+
+  return 0;
+}
+[1m[7m%[27m[1m[0m                                                                                                                                                                                                ]2;sin@uwu:~/repos/class/CPSC_340_OpSys/Homework/HW2]1;../Homework/HW2]7;file://uwu/home/sin/repos/class/CPSC_340_OpSys/Homework/HW2\[0m[27m[24m[J[38;5;135msin[00m in [38;5;118m~/repos/class/CPSC_340_OpSys/Homework/HW2[00m on [38;5;81mmain[38;5;161m ●[00m[38;5;166m λ[00m [K[?1h=[?2004hccat fan.c[?1l>[?2004l
+]2;cat fan.c]1;cat#include <stdio.h>
+#include <stdlib.h>
+#include <sys/types.h>
+#include <sys/wait.h>
+#include <unistd.h>
+
+/**
+ * Aiden Rivera
+ * fan.c
+ * 2/6/25
+ */
+
+int main() {
+  pid_t pid = getpid();
+  int i;
+  printf("Fan Process Creation: Original PID: %d\n", pid);
+
+  pid = fork();
+  if (pid < 0) {
+    fprintf(stderr, "Fork Failed!\n");
+    exit(1);
+  }
+  if (pid == 0) {
+    printf("Child: %d created by Parent: %d\n", getpid(), getppid());
+    sleep(1);
+
+    for (i = 0; i < 3; i++) {
+      pid = fork();
+      if (pid < 0) {
+        fprintf(stderr, "Fork Failed!\n");
+        exit(1);
+
+      } else if (pid == 0) {
+        // We're the child.
+        printf("Child: %d created by Parent: %d\n", getpid(), getppid());
+        exit(0);
+
+      } else {
+        // to keep the parent from exploding
+        wait(NULL);
+      }
+    }
+  } else {
+    wait(NULL);
+    exit(0);
+  }
+
+  return 0;
+}
+[1m[7m%[27m[1m[0m                                                                                                                                                                                                ]2;sin@uwu:~/repos/class/CPSC_340_OpSys/Homework/HW2]1;../Homework/HW2]7;file://uwu/home/sin/repos/class/CPSC_340_OpSys/Homework/HW2\[0m[27m[24m[J[38;5;135msin[00m in [38;5;118m~/repos/class/CPSC_340_OpSys/Homework/HW2[00m on [38;5;81mmain[38;5;161m ●[00m[38;5;166m λ[00m [K[?1h=[?2004h../sequential[1m [0m[0m [?1l>[?2004l
+]2;./sequential]1;./sequentialSequential Process Creation: Original PID: 99528
+Child: 99529 created by Parent: 99528
+Child: 99540 created by Parent: 99529
+Child: 99551 created by Parent: 99540
+[1m[7m%[27m[1m[0m                                                                                                                                                                                                ]2;sin@uwu:~/repos/class/CPSC_340_OpSys/Homework/HW2]1;../Homework/HW2]7;file://uwu/home/sin/repos/class/CPSC_340_OpSys/Homework/HW2\[0m[27m[24m[J[38;5;135msin[00m in [38;5;118m~/repos/class/CPSC_340_OpSys/Homework/HW2[00m on [38;5;81mmain[38;5;161m ●[00m[38;5;166m λ[00m [K[?1h=[?2004h../fan[1m [0m[0m [?1l>[?2004l
+]2;./fan]1;./fanFan Process Creation: Original PID: 99607
+Child: 99608 created by Parent: 99607
+Child: 99619 created by Parent: 99608
+Child: 99620 created by Parent: 99608
+Child: 99621 created by Parent: 99608
+[1m[7m%[27m[1m[0m                                                                                                                                                                                                ]2;sin@uwu:~/repos/class/CPSC_340_OpSys/Homework/HW2]1;../Homework/HW2]7;file://uwu/home/sin/repos/class/CPSC_340_OpSys/Homework/HW2\[0m[27m[24m[J[38;5;135msin[00m in [38;5;118m~/repos/class/CPSC_340_OpSys/Homework/HW2[00m on [38;5;81mmain[38;5;161m ●[00m[38;5;166m λ[00m [K[?1h=[?2004heexit[?1l>[?2004l
+]2;exit]1;exit
+Script done on 2025-02-06 18:35:16-05:00 [COMMAND_EXIT_CODE="0"]
