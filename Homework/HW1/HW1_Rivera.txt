@@ -1,8 +1,13 @@
-Script started on 2025-02-06 16:20:01-05:00 [TERM="xterm-256color" TTY="/dev/pts/1" COLUMNS="192" LINES="36"]
-[1m[38;5;118m[7m%[27m[1m[38;5;118m[0m[38;5;118m                                                                                                                                                                                                ]2;sin@uwu:~/repos/class/CPSC_340_OpSys]1;..PSC_340_OpSys]7;file://uwu/home/sin/repos/class/CPSC_340_OpSys\[0m[27m[24m[J[38;5;135msin[00m in [38;5;118m~/repos/class/CPSC_340_OpSys[00m on [38;5;81mmain[38;5;161m ●[00m[38;5;166m λ[00m [K[?1h=[?2004hggcc example.c[1m [0m[0m [?1l>[?2004l
-]2;gcc example.c]1;gcc[1m[7m%[27m[1m[0m                                                                                                                                                                                                ]2;sin@uwu:~/repos/class/CPSC_340_OpSys]1;..PSC_340_OpSys]7;file://uwu/home/sin/repos/class/CPSC_340_OpSys\[0m[27m[24m[J[38;5;135msin[00m in [38;5;118m~/repos/class/CPSC_340_OpSys[00m on [38;5;81mmain[38;5;161m ●[00m[38;5;166m λ[00m [K[?1h=[?2004hccat 
-[J[01;32ma.out[0m*      [Jexample.c   [Jtypescript[J[A[0m[27m[24m[48Ccat[K[1Cexample.c[1m [0m[0m [?1l>[?2004l
-[J]2;cat example.c]1;cat#include <stdio.h>
+Script started on 2025-02-06 16:25:34-05:00 [TERM="xterm-256color" TTY="/dev/pts/1" COLUMNS="192" LINES="36"]
+[1m[38;5;118m[7m%[27m[1m[38;5;118m[0m[38;5;118m                                                                                                                                                                                                ]2;sin@uwu:~/repos/class/CPSC_340_OpSys/Homework/HW1]1;../Homework/HW1]7;file://uwu/home/sin/repos/class/CPSC_340_OpSys/Homework/HW1\[0m[27m[24m[J[38;5;135msin[00m in [38;5;118m~/repos/class/CPSC_340_OpSys/Homework/HW1[00m on [38;5;81mmain[38;5;166m ●[38;5;161m ●[00m[38;5;166m λ[00m [K[?1h=[?2004hggcc example.c[1m [0m[0m [?1l>[?2004l
+]2;gcc example.c]1;gcc[1m[7m%[27m[1m[0m                                                                                                                                                                                                ]2;sin@uwu:~/repos/class/CPSC_340_OpSys/Homework/HW1]1;../Homework/HW1]7;file://uwu/home/sin/repos/class/CPSC_340_OpSys/Homework/HW1\[0m[27m[24m[J[38;5;135msin[00m in [38;5;118m~/repos/class/CPSC_340_OpSys/Homework/HW1[00m on [38;5;81mmain[38;5;166m ●[38;5;161m ●[00m[38;5;166m λ[00m [K[?1h=[?2004hlls -l[?1l>[?2004l
+]2;ls --color=tty -l]1;lstotal 24
+-rwxr-xr-x 1 sin sin 15488 Feb  6 16:25 [0m[01;32ma.out[0m
+-rw-r--r-- 1 sin sin   165 Feb  6 16:19 example.c
+-rwxr-xr-x 1 sin sin    31 Feb  6 16:24 [01;32mteam1[0m
+-rw-r--r-- 1 sin sin     0 Feb  6 16:25 typescript
+[1m[7m%[27m[1m[0m                                                                                                                                                                                                ]2;sin@uwu:~/repos/class/CPSC_340_OpSys/Homework/HW1]1;../Homework/HW1]7;file://uwu/home/sin/repos/class/CPSC_340_OpSys/Homework/HW1\[0m[27m[24m[J[38;5;135msin[00m in [38;5;118m~/repos/class/CPSC_340_OpSys/Homework/HW1[00m on [38;5;81mmain[38;5;166m ●[38;5;161m ●[00m[38;5;166m λ[00m [K[?1h=[?2004hccat example.c[1m [0m[0m [?1l>[?2004l
+]2;cat example.c]1;cat#include <stdio.h>
 #include <stdlib.h>
 
 int main() {
@@ -11,10 +16,26 @@ int main() {
   printf("Computer Science\n");
   exit(0);
 }
-[1m[7m%[27m[1m[0m                                                                                                                                                                                                ]2;sin@uwu:~/repos/class/CPSC_340_OpSys]1;..PSC_340_OpSys]7;file://uwu/home/sin/repos/class/CPSC_340_OpSys\[0m[27m[24m[J[38;5;135msin[00m in [38;5;118m~/repos/class/CPSC_340_OpSys[00m on [38;5;81mmain[38;5;161m ●[00m[38;5;166m λ[00m [K[?1h=[?2004h../a.out[1m [0m[0m [?1l>[?2004l
+[1m[7m%[27m[1m[0m                                                                                                                                                                                                ]2;sin@uwu:~/repos/class/CPSC_340_OpSys/Homework/HW1]1;../Homework/HW1]7;file://uwu/home/sin/repos/class/CPSC_340_OpSys/Homework/HW1\[0m[27m[24m[J[38;5;135msin[00m in [38;5;118m~/repos/class/CPSC_340_OpSys/Homework/HW1[00m on [38;5;81mmain[38;5;166m ●[38;5;161m ●[00m[38;5;166m λ[00m [K[?1h=[?2004h../a.out[1m [0m[0m [?1l>[?2004l
 ]2;./a.out]1;./a.outHello CPSC340-fall 2025
 Aiden Rivera
 Computer Science
-[1m[7m%[27m[1m[0m                                                                                                                                                                                                ]2;sin@uwu:~/repos/class/CPSC_340_OpSys]1;..PSC_340_OpSys]7;file://uwu/home/sin/repos/class/CPSC_340_OpSys\[0m[27m[24m[J[38;5;135msin[00m in [38;5;118m~/repos/class/CPSC_340_OpSys[00m on [38;5;81mmain[38;5;161m ●[00m[38;5;166m λ[00m [K[?1h=[?2004heexit[?1l>[?2004l
+[1m[7m%[27m[1m[0m                                                                                                                                                                                                ]2;sin@uwu:~/repos/class/CPSC_340_OpSys/Homework/HW1]1;../Homework/HW1]7;file://uwu/home/sin/repos/class/CPSC_340_OpSys/Homework/HW1\[0m[27m[24m[J[38;5;135msin[00m in [38;5;118m~/repos/class/CPSC_340_OpSys/Homework/HW1[00m on [38;5;81mmain[38;5;166m ●[38;5;161m ●[00m[38;5;166m λ[00m [K[?1h=[?2004h../team1[1m [0m[0m [?1l>[?2004l
+]2;./team1]1;./team1/home/sin/repos/class/CPSC_340_OpSys/Homework/HW1
+Thu Feb  6 04:25:52 PM EST 2025
+    February 2025   
+Su Mo Tu We Th Fr Sa
+                   1
+ 2  3  4  5 [7m 6[0m  7  8
+ 9 10 11 12 13 14 15
+16 17 18 19 20 21 22
+23 24 25 26 27 28   
+                    
+total 24
+-rwxr-xr-x 1 sin sin 15488 Feb  6 16:25 a.out
+-rw-r--r-- 1 sin sin   165 Feb  6 16:19 example.c
+-rwxr-xr-x 1 sin sin    31 Feb  6 16:24 team1
+-rw-r--r-- 1 sin sin     0 Feb  6 16:25 typescript
+[1m[7m%[27m[1m[0m                                                                                                                                                                                                ]2;sin@uwu:~/repos/class/CPSC_340_OpSys/Homework/HW1]1;../Homework/HW1]7;file://uwu/home/sin/repos/class/CPSC_340_OpSys/Homework/HW1\[0m[27m[24m[J[38;5;135msin[00m in [38;5;118m~/repos/class/CPSC_340_OpSys/Homework/HW1[00m on [38;5;81mmain[38;5;166m ●[38;5;161m ●[00m[38;5;166m λ[00m [K[?1h=[?2004heexit[?1l>[?2004l
 ]2;exit]1;exit
-Script done on 2025-02-06 16:20:16-05:00 [COMMAND_EXIT_CODE="0"]
+Script done on 2025-02-06 16:25:56-05:00 [COMMAND_EXIT_CODE="0"]
