@@ -16,8 +16,8 @@ int main() {
   char *m2 = "World!\n";
 
   pthread_create(&t1, NULL, print_message_function, m1);
-
   pthread_create(&t2, NULL, print_message_function, m2);
+
   pthread_join(t1, NULL);
   pthread_join(t2, NULL);
 
