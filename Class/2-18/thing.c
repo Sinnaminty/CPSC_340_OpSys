@@ -57,22 +57,23 @@ int main() {
   pthread_t g2;
   pthread_t g3;
   pthread_t g4;
+  pthread_t pThreads[] = {g1, g2, g3, g4};
 
   struct Args g1Args = {"Gate 1", 100};
   struct Args g2Args = {"Gate 2", 100};
   struct Args g3Args = {"Gate 3", 100};
   struct Args g4Args = {"Gate 4", 100};
+  struct Args pThreadArgs[] = {g1Args, g2Args, g3Args, g4Args};
 
-  pthread_create(&g1, NULL, &thread_func, (void *)(&g1Args));
-  pthread_create(&g2, NULL, &thread_func, (void *)(&g2Args));
-  pthread_create(&g3, NULL, &thread_func, (void *)(&g3Args));
-  pthread_create(&g4, NULL, &thread_func, (void *)(&g4Args));
+  for (int i = 0; i < 4; i++) {
+    pthread_create(&pThreads[i], NULL, &thread_func, (void *)(&pThreadArgs[i]));
+  }
 
-  pthread_join(g1, NULL);
-  pthread_join(g2, NULL);
-  pthread_join(g3, NULL);
-  pthread_join(g4, NULL);
+  for (int i = 0; i < 4; i++) {
+    pthread_join(pThreads[i], NULL);
+  }
 
+  printf("Final Capacity: %d\n", globalCounter);
   pthread_mutex_destroy(&mutex);
 
   return 0;
