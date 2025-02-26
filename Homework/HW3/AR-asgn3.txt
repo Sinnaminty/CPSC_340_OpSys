@@ -1,0 +1,65 @@
+Script started on 2025-02-26 14:36:18-05:00 [TERM="xterm-256color" TTY="/dev/pts/1" COLUMNS="149" LINES="31"]
+[1m[38;5;118m[7m%[27m[1m[38;5;118m[0m[38;5;118m                                                                                                                                                     ]2;sin@uwu:~/repos/class/CPSC_340_OpSys/Homework/HW3]1;../Homework/HW3]7;file://uwu/home/sin/repos/class/CPSC_340_OpSys/Homework/HW3\[0m[27m[24m[J[38;5;135msin[00m in [38;5;118m~/repos/class/CPSC_340_OpSys/Homework/HW3[00m on [38;5;81mmain[38;5;161m ●[00m[38;5;166m λ[00m [K[?1h=[?2004hscriptrm -rf multithread[18Dls                [16Dclear./multithread[13Dgcc AR-asgn3.c -o multithread -Wall -Werror -lpthread[?1l>[?2004l
+]2;gcc AR-asgn3.c -o multithread -Wall -Werror -lpthread]1;gcc[1m[7m%[27m[1m[0m                                                                                                                                                     ]2;sin@uwu:~/repos/class/CPSC_340_OpSys/Homework/HW3]1;../Homework/HW3]7;file://uwu/home/sin/repos/class/CPSC_340_OpSys/Homework/HW3\[0m[27m[24m[J[38;5;135msin[00m in [38;5;118m~/repos/class/CPSC_340_OpSys/Homework/HW3[00m on [38;5;81mmain[38;5;161m ●[00m[38;5;166m λ[00m [K[?1h=[?2004h../multithread[1m [0m[0m [?1l>[?2004l
+]2;./multithread]1;./multithreadGate NW capacity: 90 | Current Occupancy: 74
+Gate W capacity: 40 | Current Occupancy: 73
+Gate N capacity: 30 | Current Occupancy: 75
+Gate E capacity: 50 | Current Occupancy: 76
+Gate NE capacity: 90 | Current Occupancy: 77
+Gate S capacity: 40 | Current Occupancy: 78
+Gate SW capacity: 40 | Current Occupancy: 79
+Gate SE capacity: 40 | Current Occupancy: 80
+Gate E capacity: 40 | Current Occupancy: 153
+Gate NW capacity: 80 | Current Occupancy: 154
+Gate SW capacity: 30 | Current Occupancy: 155
+Gate S capacity: 30 | Current Occupancy: 156
+Gate NE capacity: 80 | Current Occupancy: 157
+Gate N capacity: 20 | Current Occupancy: 158
+Gate W capacity: 30 | Current Occupancy: 159
+Gate SE capacity: 30 | Current Occupancy: 160
+Gate SE capacity: 20 | Current Occupancy: 233
+Gate S capacity: 20 | Current Occupancy: 239
+Gate N capacity: 10 | Current Occupancy: 235
+Gate W capacity: 20 | Current Occupancy: 236
+Gate SW capacity: 20 | Current Occupancy: 237
+Gate E capacity: 30 | Current Occupancy: 238
+Gate NE capacity: 70 | Current Occupancy: 240
+Gate NW capacity: 70 | Current Occupancy: 234
+Gate SW capacity: 10 | Current Occupancy: 313
+Gate N capacity: 0 | Current Occupancy: 316
+Gate E capacity: 20 | Current Occupancy: 314
+Gate S capacity: 10 | Current Occupancy: 317
+Gate W capacity: 10 | Current Occupancy: 315
+Gate NE capacity: 60 | Current Occupancy: 318
+Gate SE capacity: 10 | Current Occupancy: 320
+Gate NW capacity: 60 | Current Occupancy: 319
+Gate N is now closed!
+Gate SE capacity: 0 | Current Occupancy: 384
+Gate NW capacity: 50 | Current Occupancy: 385
+Gate SW capacity: 0 | Current Occupancy: 386
+Gate S capacity: 0 | Current Occupancy: 387
+Gate NE capacity: 50 | Current Occupancy: 388
+Gate W capacity: 0 | Current Occupancy: 389
+Gate E capacity: 10 | Current Occupancy: 390
+Gate SE is now closed!
+Gate SW is now closed!
+Gate S is now closed!
+Gate W is now closed!
+Gate E capacity: 0 | Current Occupancy: 419
+Gate NE capacity: 40 | Current Occupancy: 419
+Gate NW capacity: 40 | Current Occupancy: 420
+Gate E is now closed!
+Gate NW capacity: 30 | Current Occupancy: 439
+Gate NE capacity: 30 | Current Occupancy: 440
+Gate NW capacity: 20 | Current Occupancy: 459
+Gate NE capacity: 20 | Current Occupancy: 460
+Gate NW capacity: 10 | Current Occupancy: 479
+Gate NE capacity: 10 | Current Occupancy: 480
+Gate NE capacity: 0 | Current Occupancy: 499
+Gate NW capacity: 0 | Current Occupancy: 500
+Gate NW is now closed!
+Gate NE is now closed!
+Final Occupancy: 500
+[1m[7m%[27m[1m[0m                                                                                                                                                     ]2;sin@uwu:~/repos/class/CPSC_340_OpSys/Homework/HW3]1;../Homework/HW3]7;file://uwu/home/sin/repos/class/CPSC_340_OpSys/Homework/HW3\[0m[27m[24m[J[38;5;135msin[00m in [38;5;118m~/repos/class/CPSC_340_OpSys/Homework/HW3[00m on [38;5;81mmain[38;5;161m ●[00m[38;5;166m λ[00m [K[?1h=[?2004heexit[?1l>[?2004l
+]2;exit]1;exit
+Script done on 2025-02-26 14:36:41-05:00 [COMMAND_EXIT_CODE="0"]
