@@ -19,7 +19,9 @@ typedef struct Job {
   struct Job *m_next;
 } Job;
 
-Job *ready_queue = NULL;
+Job *txt_ready_queue = NULL;
+Job *fp_ready_queue = NULL;
+Job *mm_ready_queue = NULL;
 
 // Function to create a new job
 Job *createJob(char *name, int arrivalTime, int length, int deadline,
@@ -29,13 +31,13 @@ Job *createJob(char *name, int arrivalTime, int length, int deadline,
   new_job->m_arrivalTime = arrivalTime;
   new_job->m_length = length;
   new_job->m_deadline = deadline;
-  if (strcmp(priority, "TXT")) {
+  if (strcmp(priority, "TXT") == 0) {
     new_job->m_priority = TXT;
 
-  } else if (strcmp(priority, "FP")) {
+  } else if (strcmp(priority, "FP") == 0) {
     new_job->m_priority = FP;
 
-  } else if (strcmp(priority, "MM")) {
+  } else if (strcmp(priority, "MM") == 0) {
     new_job->m_priority = MM;
 
   } else {
@@ -46,13 +48,12 @@ Job *createJob(char *name, int arrivalTime, int length, int deadline,
   return new_job;
 }
 
-// sorted by arrivalTime
-void insertIntoReadyQueue(Job *job) {
-  if (!ready_queue) {
-    ready_queue = job;
+void insertIntoTXTReadyQueue(Job *job) {
+  if (!txt_ready_queue) {
+    txt_ready_queue = job;
     return;
   }
-  Job *temp = ready_queue;
+  Job *temp = txt_ready_queue;
   Job *previous = NULL;
   while (temp && temp->m_arrivalTime < job->m_arrivalTime) {
     previous = temp;
@@ -63,10 +64,70 @@ void insertIntoReadyQueue(Job *job) {
   if (previous) {
     previous->m_next = job;
   } else {
-    ready_queue = job;
+    txt_ready_queue = job;
   }
   if (temp) {
     temp->m_previous = job;
+  }
+}
+void insertIntoFPReadyQueue(Job *job) {
+
+  if (!fp_ready_queue) {
+    fp_ready_queue = job;
+    return;
+  }
+  Job *temp = fp_ready_queue;
+  Job *previous = NULL;
+  while (temp && temp->m_arrivalTime < job->m_arrivalTime) {
+    previous = temp;
+    temp = temp->m_next;
+  }
+  job->m_next = temp;
+  job->m_previous = previous;
+  if (previous) {
+    previous->m_next = job;
+  } else {
+    fp_ready_queue = job;
+  }
+  if (temp) {
+    temp->m_previous = job;
+  }
+}
+void insertIntoMMReadyQueue(Job *job) {
+
+  if (!mm_ready_queue) {
+    mm_ready_queue = job;
+    return;
+  }
+  Job *temp = mm_ready_queue;
+  Job *previous = NULL;
+  while (temp && temp->m_arrivalTime < job->m_arrivalTime) {
+    previous = temp;
+    temp = temp->m_next;
+  }
+  job->m_next = temp;
+  job->m_previous = previous;
+  if (previous) {
+    previous->m_next = job;
+  } else {
+    mm_ready_queue = job;
+  }
+  if (temp) {
+    temp->m_previous = job;
+  }
+}
+// sorted by arrivalTime
+void insertIntoReadyQueue(Job *job) {
+  switch (job->m_priority) {
+  case TXT:
+    insertIntoTXTReadyQueue(job);
+    break;
+  case FP:
+    insertIntoFPReadyQueue(job);
+    break;
+  case MM:
+    insertIntoMMReadyQueue(job);
+    break;
   }
 }
 ////////////////////////////
@@ -112,6 +173,8 @@ void loadJobs(const char *filename) {
 
 int main() {
   loadJobs("jobs.txt"); // Load jobs from file
-  printQueue(ready_queue, "Ready Queue");
+  printQueue(txt_ready_queue, "TXT Ready Queue");
+  printQueue(fp_ready_queue, "FP Ready Queue");
+  printQueue(mm_ready_queue, "MM Ready Queue");
   return 0;
 }
