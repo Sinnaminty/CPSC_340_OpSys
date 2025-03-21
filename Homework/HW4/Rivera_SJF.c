@@ -2,8 +2,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-int ms = 0;
-
 typedef enum Priority {
   TXT, /* Highest Priority Job. */
   FP,
@@ -147,17 +145,22 @@ void insertIntoMMReadyQueue(Job *job) {
 }
 
 void insertIntoFinishedQueue(Job *job) {
-  printf("insertIntoReadyQueue\n");
+
   if (!finished_queue) {
+    printf("First Job Inserted into Finished Queue!\n");
     finished_queue = job;
     return;
   }
 
   Job *temp = finished_queue;
-  while (temp->m_next) {
+  while (temp) {
     temp = temp->m_next;
   }
-  temp->m_next = job;
+  if (!temp) {
+    temp = job;
+  } else {
+    printf("Temp not null!\n");
+  }
 }
 
 // sorted by arrivalTime
@@ -190,10 +193,11 @@ Job *findShortestJob(Job *head) {
   // now we have the shortest Job!
   // connect previous and next together, and insert shortestJob in
   // finished_queue
+  printf("shortest_job found!\n");
+  printJob(shortest_job);
+
   previous = shortest_job->m_previous;
   next = shortest_job->m_next;
-  shortest_job->m_next = NULL;
-  shortest_job->m_previous = NULL;
 
   // if next is null.. that means we are at the end of the list
   // if both are null.. that means we are the last item in this list
@@ -204,7 +208,7 @@ Job *findShortestJob(Job *head) {
     next->m_previous = previous;
 
     // if previous is null.. that means we are at the beginning of the list
-  } else if (!previous && next) {
+  } else if (!previous) {
     *head = *head->m_next;
   }
 
@@ -217,6 +221,7 @@ void doJob(Job *job) {
   // need to keep track of global time
   // need to increment global time based on job time
   insertIntoFinishedQueue(job);
+  printQueue(finished_queue, "finished_queue");
 }
 
 // Function to load jobs from a file
@@ -242,7 +247,7 @@ void loadJobs(const char *filename) {
 void start() {
   // find shortest job in each queue, do it, and then put it in the finished
   // print all queues every 500 ms
-
+  int ms = 0;
   while (1) {
     if (ms % 500 == 0) {
       printAllQueues();
