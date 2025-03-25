@@ -12,216 +12,215 @@ typedef struct Job {
   char m_name[10];
   int m_arrivalTime;
   int m_length;
+  int m_remainingTime;
   int m_deadline;
+  int m_completionTime;
   Priority m_priority;
 
-  struct Job *m_previous;
-  struct Job *m_next;
 } Job;
 
-Job *txt_ready_queue = NULL;
-Job *fp_ready_queue = NULL;
-Job *mm_ready_queue = NULL;
-Job *finished_queue = NULL;
+typedef struct Node {
+  struct Job *m_job;
 
-////////////////////////////
-/// DEBUG FUNCTIONS
-////////////////////////////
+  struct Node *m_previous;
+  struct Node *m_next;
+} Node;
 
-void printJob(const Job *job) {
-
-  printf("%-8s | %-12d | %-6d | %-8d | %-8d\n", job->m_name, job->m_arrivalTime,
-         job->m_length, job->m_deadline, job->m_priority);
-}
-
-// Function to print Queues
-void printQueue(const Job *queue, const char *title) {
-  printf("\n%s:\n", title);
-  printf("Job Name | Arrival Time | Length | Deadline | Priority\n");
-  printf("------------------------------------------------------\n");
-  while (queue) {
-    printJob(queue);
-    queue = queue->m_next;
-  }
-}
-void printAllQueues() {
-  printQueue(txt_ready_queue, "TXT Ready Queue");
-  printQueue(fp_ready_queue, "FP Ready Queue");
-  printQueue(mm_ready_queue, "MM Ready Queue");
-  printQueue(finished_queue, "Finished Queue");
-}
-// Function to create a new job
 Job *createJob(char *name, int arrivalTime, int length, int deadline,
                char *priority) {
-  Job *new_job = (Job *)malloc(sizeof(struct Job));
-  strcpy(new_job->m_name, name);
-  new_job->m_arrivalTime = arrivalTime;
-  new_job->m_length = length;
-  new_job->m_deadline = deadline;
+  Job *newJob = (Job *)malloc(sizeof(struct Job));
+  strcpy(newJob->m_name, name);
+
+  newJob->m_arrivalTime = arrivalTime;
+  newJob->m_length = length;
+  newJob->m_remainingTime = length;
+  newJob->m_deadline = deadline;
+  newJob->m_completionTime = 0;
+
   if (strcmp(priority, "TXT") == 0) {
-    new_job->m_priority = TXT;
+    newJob->m_priority = TXT;
 
   } else if (strcmp(priority, "FP") == 0) {
-    new_job->m_priority = FP;
+    newJob->m_priority = FP;
 
   } else if (strcmp(priority, "MM") == 0) {
-    new_job->m_priority = MM;
+    newJob->m_priority = MM;
 
   } else {
     fprintf(stderr, "createJob - Priority is invalid!!\n");
     exit(1);
   }
-  new_job->m_previous = new_job->m_next = NULL;
-  return new_job;
+  return newJob;
 }
 
-void insertIntoTXTReadyQueue(Job *job) {
-  if (!txt_ready_queue) {
-    txt_ready_queue = job;
-    return;
-  }
-  Job *temp = txt_ready_queue;
-  Job *previous = NULL;
-  while (temp && temp->m_arrivalTime < job->m_arrivalTime) {
-    previous = temp;
-    temp = temp->m_next;
-  }
-  job->m_next = temp;
-  job->m_previous = previous;
-  if (previous) {
-    previous->m_next = job;
-  } else {
-    txt_ready_queue = job;
-  }
-  if (temp) {
-    temp->m_previous = job;
-  }
-}
-void insertIntoFPReadyQueue(Job *job) {
+//////////////////
+/// NODE FUNCTIONS
+//////////////////
 
-  if (!fp_ready_queue) {
-    fp_ready_queue = job;
-    return;
-  }
-  Job *temp = fp_ready_queue;
-  Job *previous = NULL;
-  while (temp && temp->m_arrivalTime < job->m_arrivalTime) {
-    previous = temp;
-    temp = temp->m_next;
-  }
-  job->m_next = temp;
-  job->m_previous = previous;
-  if (previous) {
-    previous->m_next = job;
-  } else {
-    fp_ready_queue = job;
-  }
-  if (temp) {
-    temp->m_previous = job;
-  }
+Node *createNode(Job *job) {
+  Node *newNode = (Node *)malloc(sizeof(struct Node));
+  newNode->m_job = job;
+  newNode->m_previous = newNode->m_next = NULL;
+  return newNode;
 }
 
-void insertIntoMMReadyQueue(Job *job) {
-  if (!mm_ready_queue) {
-    mm_ready_queue = job;
-    return;
-  }
-  Job *temp = mm_ready_queue;
-  Job *previous = NULL;
-  while (temp && temp->m_arrivalTime < job->m_arrivalTime) {
-    previous = temp;
-    temp = temp->m_next;
-  }
-  job->m_next = temp;
-  job->m_previous = previous;
-  if (previous) {
-    previous->m_next = job;
-  } else {
-    mm_ready_queue = job;
-  }
-  if (temp) {
-    temp->m_previous = job;
-  }
-}
+Node *insertionSort(Node *head) {
+  if (head == NULL)
+    return head;
+  struct Node *sorted = NULL;
+  struct Node *curr = head;
 
-void insertIntoFinishedQueue(Job *job) {
+  // Traverse the list to sort each element
+  while (curr != NULL) {
 
-  if (!finished_queue) {
-    printf("First Job Inserted into Finished Queue!\n");
-    finished_queue = job;
-    return;
-  }
+    // Store the next node to process
+    struct Node *next = curr->m_next;
 
-  Job *temp = finished_queue;
-  while (temp) {
-    temp = temp->m_next;
-  }
-  if (!temp) {
-    temp = job;
-  } else {
-    printf("Temp not null!\n");
-  }
-}
+    // Insert `curr` into the sorted part
+    if (sorted == NULL ||
+        sorted->m_job->m_remainingTime >= curr->m_job->m_remainingTime) {
+      curr->m_next = sorted;
 
-// sorted by arrivalTime
-void insertIntoReadyQueue(Job *job) {
-  switch (job->m_priority) {
-  case TXT:
-    insertIntoTXTReadyQueue(job);
-    break;
-  case FP:
-    insertIntoFPReadyQueue(job);
-    break;
-  case MM:
-    insertIntoMMReadyQueue(job);
-    break;
-  }
-}
+      // If sorted is not empty, set its `prev`
+      if (sorted != NULL)
+        sorted->m_previous = curr;
 
-Job *findShortestJob(Job *head) {
-  Job *shortest_job = head;
-  Job *temp = head;
-  Job *previous = NULL;
-  Job *next = NULL;
+      // Update sorted to the new head
+      sorted = curr;
+      sorted->m_previous = NULL;
 
-  while (temp->m_next) {
-    temp = temp->m_next;
-    if (shortest_job->m_length > temp->m_length) {
-      shortest_job = temp;
+    } else {
+
+      // Pointer to traverse the sorted part
+      struct Node *current_sorted = sorted;
+
+      // Find the correct position to insert
+      while (current_sorted->m_next != NULL &&
+             current_sorted->m_next->m_job->m_remainingTime <
+                 curr->m_job->m_remainingTime) {
+        current_sorted = current_sorted->m_next;
+      }
+
+      // Insert `curr` after `current_sorted`
+      curr->m_next = current_sorted->m_next;
+
+      // Set `prev` if `curr` is not inserted
+      // at the end
+      if (current_sorted->m_next != NULL)
+        current_sorted->m_next->m_previous = curr;
+
+      // Set `next` of `current_sorted` to `curr`
+      current_sorted->m_next = curr;
+      curr->m_previous = current_sorted;
     }
-  }
-  // now we have the shortest Job!
-  // connect previous and next together, and insert shortestJob in
-  // finished_queue
-  printf("shortest_job found!\n");
-  printJob(shortest_job);
 
-  previous = shortest_job->m_previous;
-  next = shortest_job->m_next;
-
-  // if next is null.. that means we are at the end of the list
-  // if both are null.. that means we are the last item in this list
-
-  // if neither are null.. that means we are in the middle of the list
-  if (previous && next) {
-    previous->m_next = next;
-    next->m_previous = previous;
-
-    // if previous is null.. that means we are at the beginning of the list
-  } else if (!previous) {
-    *head = *head->m_next;
+    curr = next;
   }
 
-  printf("shortest_job returned!\n");
-  printQueue(txt_ready_queue, "txt_ready_queue");
-  return shortest_job;
+  return sorted;
 }
 
-void doJob(Job *job) {
-  // need to keep track of global time
-  // need to increment global time based on job time
-  insertIntoFinishedQueue(job);
-  printQueue(finished_queue, "finished_queue");
+void append(Node **head, Job *job) {
+  Node *newNode = createNode(job);
+
+  if (*head == NULL) {
+    *head = createNode(job);
+    return;
+  }
+
+  Node *temp = *head;
+  while (temp->m_next != NULL) {
+    temp = temp->m_next;
+  }
+
+  temp->m_next = newNode;
+  newNode->m_previous = temp;
+}
+
+void appendWithSort(Node **head, Job *job) {
+  append(head, job);
+
+  // sort by m_remainingTime
+  // if we are NOT timeQueue
+  *head = insertionSort(*head);
+}
+
+Node *popFront(Node **head) {
+  if (head == NULL) {
+    fprintf(stderr, "Can't popFront, no head!!\n");
+    exit(1);
+  }
+
+  Node *temp = *head;
+  *head = (*head)->m_next;
+
+  if (*head != NULL) {
+    (*head)->m_previous = NULL;
+  }
+
+  return temp;
+}
+
+Node *timeQueue = NULL;
+
+Node *txtReadyQueue = NULL;
+Node *fpReadyQueue = NULL;
+Node *mmReadyQueue = NULL;
+
+Node *finishedQueue = NULL;
+Node *missedQueue = NULL;
+
+////////////////////////////
+/// PRINT FUNCTIONS
+////////////////////////////
+
+void printJob(const Job *job) {
+  printf("%-8s | %-12d | %-6d | %-14d | %-8d | %-15d | %-8d\n", job->m_name,
+         job->m_arrivalTime, job->m_length, job->m_remainingTime,
+         job->m_deadline, job->m_completionTime, job->m_priority);
+}
+
+void printQueue(const Node *queue, const char *title) {
+  printf("\n%s:\n", title);
+  printf("Job Name | Arrival Time | Length | Remaining Time | Deadline | "
+         "Completion Time | Priority\n");
+  printf("---------------------------------------------------------------------"
+         "--------------------\n");
+  while (queue) {
+    printJob(queue->m_job);
+    queue = queue->m_next;
+  }
+}
+
+void printAllQueues() {
+  printQueue(txtReadyQueue, "TXT Ready Queue");
+  printQueue(fpReadyQueue, "FP Ready Queue");
+  printQueue(mmReadyQueue, "MM Ready Queue");
+  printQueue(finishedQueue, "Finished Queue");
+  printQueue(missedQueue, "Missed Queue");
+}
+
+////////////////////////////
+/// QUEUE FUNCTIONS
+////////////////////////////
+
+void readyUp(Job *job) {
+  switch (job->m_priority) {
+  case TXT: {
+    appendWithSort(&txtReadyQueue, job);
+    break;
+  }
+
+  case FP: {
+    appendWithSort(&fpReadyQueue, job);
+    break;
+  }
+
+  case MM: {
+    appendWithSort(&mmReadyQueue, job);
+    break;
+  }
+  }
 }
 
 // Function to load jobs from a file
@@ -231,6 +230,7 @@ void loadJobs(const char *filename) {
     fprintf(stderr, "Error opening file\n");
     exit(1);
   }
+
   // txt, FP, MM
   char name[10];
   int arrival, length, deadline;
@@ -238,31 +238,82 @@ void loadJobs(const char *filename) {
 
   while (fscanf(file, "%9s %d %d %d %3s", name, &arrival, &length, &deadline,
                 priority) != EOF) {
-    insertIntoReadyQueue(createJob(name, arrival, length, deadline, priority));
+    append(&timeQueue, createJob(name, arrival, length, deadline, priority));
   }
+  printQueue(timeQueue, "timeQueue");
 
   fclose(file);
 }
 
-void start() {
+Job *popShortestJobWithPriority() {
+  if (txtReadyQueue) {
+    return popFront(&txtReadyQueue)->m_job;
+  } else if (fpReadyQueue != NULL) {
+    return popFront(&fpReadyQueue)->m_job;
+  } else if (mmReadyQueue != NULL) {
+    return popFront(&mmReadyQueue)->m_job;
+  } else {
+    return NULL;
+  }
+}
+
+int queuesEmpty() {
+  return (!txtReadyQueue && !mmReadyQueue && !fpReadyQueue && !timeQueue);
+}
+
+void spin() {
   // find shortest job in each queue, do it, and then put it in the finished
   // print all queues every 500 ms
-  int ms = 0;
+  int currentTime = 0;
+
   while (1) {
-    if (ms % 500 == 0) {
+    if (currentTime % 500 == 0) {
+      printf("\nCurrent Time: %d\n", currentTime);
       printAllQueues();
     }
 
-    if (txt_ready_queue) {
-      doJob(findShortestJob(txt_ready_queue));
-    } else if (fp_ready_queue) {
-      doJob(findShortestJob(fp_ready_queue));
-    } else if (mm_ready_queue) {
-      doJob(findShortestJob(mm_ready_queue));
+    if (timeQueue) {
+      if (timeQueue->m_job->m_arrivalTime <= currentTime) {
+        // this queues up the front of the time queue into it's appropriate
+        // queue
+        readyUp(popFront(&timeQueue)->m_job);
+      }
     } else {
-      break;
+      if (queuesEmpty()) {
+        break;
+      }
     }
-    ms++;
+
+    // select shortest time
+    Job *job = popShortestJobWithPriority();
+    if (job == NULL) {
+      if (queuesEmpty()) {
+        printf("Finished!\n");
+        break;
+      } else {
+        currentTime++;
+        continue;
+      }
+    }
+
+    if (job->m_deadline < currentTime) {
+      append(&missedQueue, job);
+      continue;
+    }
+
+    // execute process
+    job->m_remainingTime--;
+    currentTime++;
+
+    if (job->m_remainingTime == 0) {
+      // we are done. add it to finishedQueue
+      job->m_completionTime = currentTime;
+      append(&finishedQueue, job);
+
+    } else {
+      // push it back into it's appropriate queue.
+      readyUp(job);
+    }
   }
 }
 
@@ -271,8 +322,9 @@ int main() {
   // we start the scheduling process
   // jobs must be done in priority, and then inserted into the finished queue
   // when done print every 500 ms
-  start();
-  printf("Finished!\n");
+
+  spin();
+
   printAllQueues();
   return 0;
 }
