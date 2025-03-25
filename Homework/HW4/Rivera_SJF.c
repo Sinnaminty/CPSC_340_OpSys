@@ -175,9 +175,24 @@ Node *missedQueue = NULL;
 ////////////////////////////
 
 void printJob(const Job *job) {
-  printf("%-8s | %-12d | %-6d | %-14d | %-8d | %-15d | %-8d\n", job->m_name,
+  char priority[4];
+  switch (job->m_priority) {
+  case TXT:
+    strcpy(priority, "TXT");
+    break;
+
+  case FP:
+    strcpy(priority, "FP");
+    break;
+
+  case MM:
+    strcpy(priority, "MM");
+    break;
+  }
+
+  printf("%-8s | %-12d | %-6d | %-14d | %-8d | %-15d | %-8s\n", job->m_name,
          job->m_arrivalTime, job->m_length, job->m_remainingTime,
-         job->m_deadline, job->m_completionTime, job->m_priority);
+         job->m_deadline, job->m_completionTime, priority);
 }
 
 void printQueue(const Node *queue, const char *title) {
@@ -192,10 +207,28 @@ void printQueue(const Node *queue, const char *title) {
   }
 }
 
-void printAllQueues() {
-  printQueue(txtReadyQueue, "TXT Ready Queue");
-  printQueue(fpReadyQueue, "FP Ready Queue");
-  printQueue(mmReadyQueue, "MM Ready Queue");
+void printReadyQueues() {
+  printf("Next incoming job:\n");
+  if (timeQueue) {
+    printJob(timeQueue->m_job);
+  } else {
+    printf("None!\n");
+  }
+
+  if (txtReadyQueue) {
+    printQueue(txtReadyQueue, "TXT Ready Queue");
+  }
+
+  if (fpReadyQueue) {
+    printQueue(fpReadyQueue, "FP Ready Queue");
+  }
+
+  if (mmReadyQueue) {
+    printQueue(mmReadyQueue, "MM Ready Queue");
+  }
+}
+
+void printFinalQueues() {
   printQueue(finishedQueue, "Finished Queue");
   printQueue(missedQueue, "Missed Queue");
 }
@@ -264,13 +297,12 @@ int queuesEmpty() {
 void spin() {
   // find shortest job in each queue, do it, and then put it in the finished
   // print all queues every 500 ms
-  int currentTime = 0;
+  int currentTime = timeQueue->m_job->m_arrivalTime - 10;
 
   while (1) {
-    if (currentTime % 500 == 0) {
-      printf("\nCurrent Time: %d\n", currentTime);
-      printAllQueues();
-    }
+    system("clear");
+    printf("Current Time: %d\n", currentTime);
+    printReadyQueues();
 
     if (timeQueue) {
       if (timeQueue->m_job->m_arrivalTime <= currentTime) {
@@ -314,6 +346,10 @@ void spin() {
       // push it back into it's appropriate queue.
       readyUp(job);
     }
+
+    // weeee im wasting time!!
+    for (int i = 0; i < 20000; i++)
+      ;
   }
 }
 
@@ -324,7 +360,8 @@ int main() {
   // when done print every 500 ms
 
   spin();
-
-  printAllQueues();
+  system("clear");
+  printf("Finished!\n");
+  printFinalQueues();
   return 0;
 }
