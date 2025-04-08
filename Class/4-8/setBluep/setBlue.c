@@ -37,7 +37,7 @@ int main(int argc, char *argv[]) {
 
     for (int i = 0; i < rd_count; i++) {
       if (i % 4 == 2) {
-        buffer[i] = '\0';
+        buffer[i] = 0xFF;
       }
     }
     wt_count = write(out_fd, buffer, rd_count);
