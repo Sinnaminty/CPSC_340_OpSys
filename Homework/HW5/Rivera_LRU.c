@@ -71,6 +71,7 @@ Frame captureState(const bool fault) {
   for (int i = 0; i < MAX_PAGES; i++) {
     if (curr) {
       frame.m_frame[i] = curr->m_page;
+      curr = curr->m_next;
     } else {
       frame.m_frame[i] = -1;
     }
@@ -139,19 +140,33 @@ void evictLRU() {
   size--;
 }
 
-void printFrame(const Frame *frame, const int numOfPages) {
-  for (int i = 0; i < numOfPages; i++) {
-    printf("%d: %d\n", i, frame->m_frame[i]);
-  }
-  printf("F: %d", frame->m_fault);
-}
 void printTable(const Table *table) {
+  printf("\n--- Page Table (Matrix View) ---\n");
+  printf("Time : ");
+  for (int j = 0; j < table->m_tableSize; j++) {
+    printf("%3d", j);
+  }
+  printf("\n");
+
   for (int i = 0; i < table->m_frameSize; i++) {
+    printf("Frame %d:", i);
     for (int j = 0; j < table->m_tableSize; j++) {
-      printf("%d ", table->m_table[j].m_frame[i]);
+      int val = table->m_table[j].m_frame[i];
+      if (val == -1) {
+        printf("  -");
+      } else {
+        printf("%3d", val);
+      }
     }
     printf("\n");
   }
+
+  // Optional: print fault row
+  printf("Faults :");
+  for (int j = 0; j < table->m_tableSize; j++) {
+    printf("  %c", table->m_table[j].m_fault ? ' ' : '*');
+  }
+  printf("\n");
 }
 
 void printMemory() {
