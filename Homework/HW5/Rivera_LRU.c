@@ -1,3 +1,5 @@
+#include <stdbool.h>
+#include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -5,6 +7,9 @@
 #define PS2_SIZE 33
 #define PS3_SIZE 20
 #define PS4_SIZE 20
+#define WAIT_TIME 100000000
+#define MAX_PAGES 4
+#define MAX_FRAMES 50
 
 const int ps1[PS1_SIZE] = {7, 0, 1, 2, 0, 3, 0, 4, 2, 3, 0, 3, 2};
 const int ps2[PS2_SIZE] = {1, 0, 2, 2, 1, 7, 6, 7, 0, 1, 2, 0, 3, 0, 4, 5, 1,
@@ -14,20 +19,67 @@ const int ps3[PS3_SIZE] = {7, 0, 1, 2, 0, 3, 0, 4, 2, 3,
 const int ps4[PS4_SIZE] = {1, 2, 3, 4, 2, 1, 5, 6, 2, 1,
                            2, 3, 7, 6, 3, 2, 1, 2, 3, 6};
 
+/* DLL for our Pages*/
 typedef struct Node {
   int m_page;
   struct Node *m_prev;
   struct Node *m_next;
 } Node;
 
+/* Holds the state of exactly one frame*/
+typedef struct Frame {
+  bool m_fault; /* did this frame have a fault?*/
+  int m_frame[MAX_PAGES];
+} Frame;
+
+typedef struct Table {
+  int m_frameSize; /* how many pages are in this frame?*/
+  int m_tableSize; /* how many frames in this table? */
+  int m_head;      /*top of table*/
+  Frame m_table[MAX_FRAMES];
+} Table;
+
 Node *head = NULL;
 Node *tail = NULL;
 
-int frameCount = 3; /*the size of our Page table*/
 int size = 0;
 
+Table *createTable(const int tableSize, const int frameSize) {
+  Table *newTable = (Table *)malloc(sizeof(struct Table));
+  newTable->m_tableSize = tableSize;
+  newTable->m_frameSize = frameSize;
+  newTable->m_head = -1;
+  return newTable;
+}
+
+void addFrame(Table *table, const Frame frame) {
+  if (table->m_head < table->m_tableSize) {
+    table->m_table[++table->m_head] = frame;
+  } else {
+    fprintf(stderr, "Head past max table size!\n");
+    fprintf(stderr, "head: %d | tableSize: %d", table->m_head,
+            table->m_tableSize);
+    exit(1);
+  }
+}
+
+Frame captureState(const bool fault) {
+  Frame frame;
+  Node *curr = head;
+  frame.m_fault = fault;
+
+  for (int i = 0; i < MAX_PAGES; i++) {
+    if (curr) {
+      frame.m_frame[i] = curr->m_page;
+    } else {
+      frame.m_frame[i] = -1;
+    }
+  }
+  return frame;
+}
+
 // search and move the page if it exists
-int accessPage(int page) {
+bool accessPage(int page) {
   Node *curr = head;
   while (curr) {
     if (curr->m_page == page) {
@@ -47,11 +99,11 @@ int accessPage(int page) {
         head->m_prev = curr;
         head = curr;
       }
-      return 1; /* page found!*/
+      return true; /* page found!*/
     }
     curr = curr->m_next;
   }
-  return 0; /* page not found.. :c*/
+  return false; /* page not found.. :c*/
 }
 
 // add page to front
@@ -87,6 +139,21 @@ void evictLRU() {
   size--;
 }
 
+void printFrame(const Frame *frame, const int numOfPages) {
+  for (int i = 0; i < numOfPages; i++) {
+    printf("%d: %d\n", i, frame->m_frame[i]);
+  }
+  printf("F: %d", frame->m_fault);
+}
+void printTable(const Table *table) {
+  for (int i = 0; i < table->m_frameSize; i++) {
+    for (int j = 0; j < table->m_tableSize; j++) {
+      printf("%d ", table->m_table[j].m_frame[i]);
+    }
+    printf("\n");
+  }
+}
+
 void printMemory() {
   Node *curr = head;
   printf("-----------------------\n");
@@ -98,32 +165,38 @@ void printMemory() {
   printf("-----------------------\n");
 }
 
-void simulateLRU(const int pages[], const int n) {
+void simulateLRU(const int pages[], const int n, const int frameSize) {
   int pageFaults = 0;
+  Table *table = createTable(n, frameSize);
+
   for (int i = 0; i < n; i++) {
     system("clear");
     int page = pages[i];
     printf("Accessing page %d: ", page);
-    if (!accessPage(page)) {
+    bool accessed = accessPage(page);
+
+    if (!accessed) {
       pageFaults++;
-      if (size == frameCount) {
+      if (size == frameSize) {
         evictLRU();
       }
       insertPage(page);
-      printf("Page Fault\n");
+      printf("Page fault!\n");
     } else {
       printf("Page hit!\n");
     }
+
+    addFrame(table, captureState(accessed));
     printMemory();
-    for (int wait = 0; wait < 100000000; wait++)
+    for (int wait = 0; wait < WAIT_TIME; wait++)
       ;
   }
   printf("Total Page Faults: %d\n", pageFaults);
+  printTable(table);
 }
 
 int main() {
-  frameCount = 3;
   printf("3 Frame LRU\n");
-  simulateLRU(ps1, PS1_SIZE);
+  simulateLRU(ps1, PS1_SIZE, 3);
   return 0;
 }
