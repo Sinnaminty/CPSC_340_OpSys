@@ -4,14 +4,20 @@
 #include <stdlib.h>
 #include <string.h>
 
+// Sizes for predefined page streams
 #define PS1_SIZE 13
 #define PS2_SIZE 33
 #define PS3_SIZE 20
 #define PS4_SIZE 20
-#define WAIT_TIME 100000000
-#define MAX_PAGES 4
-#define MAX_FRAMES 50
 
+// Time delay for simulating processing (not functional, just slows output)
+#define WAIT_TIME 100000000
+
+// Constants for simulation
+#define MAX_PAGES 4   // Max pages that can fit in memory
+#define MAX_FRAMES 50 // Max number of frames in the table
+
+// Predefined page request streams (used for testing)
 const int ps1[PS1_SIZE] = {7, 0, 1, 2, 0, 3, 0, 4, 2, 3, 0, 3, 2};
 const int ps2[PS2_SIZE] = {1, 0, 2, 2, 1, 7, 6, 7, 0, 1, 2, 0, 3, 0, 4, 5, 1,
                            5, 2, 4, 5, 6, 7, 6, 7, 2, 4, 2, 7, 3, 3, 2, 3};
@@ -20,31 +26,35 @@ const int ps3[PS3_SIZE] = {7, 0, 1, 2, 0, 3, 0, 4, 2, 3,
 const int ps4[PS4_SIZE] = {1, 2, 3, 4, 2, 1, 5, 6, 2, 1,
                            2, 3, 7, 6, 3, 2, 1, 2, 3, 6};
 
-/* DLL for our Pages*/
+/* Doubly linked list node used to simulate memory */
 typedef struct Node {
-  int m_page;
-  struct Node *m_prev;
-  struct Node *m_next;
+  int m_page;          // Page number
+  struct Node *m_prev; // Previous node in list
+  struct Node *m_next; // Next node in list
 } Node;
 
-/* Holds the state of exactly one frame*/
+/* Frame stores current memory snapshot and whether a fault occurred */
 typedef struct Frame {
-  bool m_fault; /* did this frame have a fault?*/
-  int m_frame[MAX_PAGES];
+  bool m_fault;           // Did a fault occur at this step?
+  int m_frame[MAX_PAGES]; // Frame contents (up to MAX_PAGES pages)
 } Frame;
 
+/* Table stores entire simulation history */
 typedef struct Table {
-  int m_frameSize; /* how many pages are in this frame?*/
-  int m_tableSize; /* how many frames in this table? */
-  int m_head;      /*top of table*/
-  Frame m_table[MAX_FRAMES];
+  int m_frameSize;           // Number of pages per frame
+  int m_tableSize;           // Number of frames
+  int m_head;                // Index of last frame inserted
+  Frame m_table[MAX_FRAMES]; // Array of frames
 } Table;
 
+// Pointers to the front and back of the linked list
 Node *head = NULL;
 Node *tail = NULL;
 
+// Current memory usage size (number of nodes in the list)
 int size = 0;
 
+/* Allocates and initializes a new table for the simulation */
 Table *createTable(const int tableSize, const int frameSize) {
   Table *newTable = (Table *)malloc(sizeof(struct Table));
   newTable->m_tableSize = tableSize;
@@ -53,62 +63,60 @@ Table *createTable(const int tableSize, const int frameSize) {
   return newTable;
 }
 
+/* Adds a frame to the table, checking bounds */
 void addFrame(Table *table, const Frame frame) {
   if (table->m_head < table->m_tableSize) {
     table->m_table[++table->m_head] = frame;
   } else {
     fprintf(stderr, "Head past max table size!\n");
-    fprintf(stderr, "head: %d | tableSize: %d", table->m_head,
-            table->m_tableSize);
     exit(1);
   }
 }
 
+/* Captures current memory state as a Frame, marking faults */
 Frame captureState(const bool fault) {
   Frame frame;
   Node *curr = head;
   frame.m_fault = fault;
 
   for (int i = 0; i < MAX_PAGES; i++) {
-    if (curr) {
-      frame.m_frame[i] = curr->m_page;
+    frame.m_frame[i] = (curr) ? curr->m_page : -1;
+    if (curr)
       curr = curr->m_next;
-    } else {
-      frame.m_frame[i] = -1;
-    }
   }
   return frame;
 }
 
-// search and move the page if it exists
+/* Tries to access a page in memory (linked list).
+   If found, move it to the front (LRU policy).
+   Returns true if page hit, false if page fault. */
 bool accessPage(int page) {
   Node *curr = head;
   while (curr) {
     if (curr->m_page == page) {
-      /* move the page to the front*/
-      if (curr != head) { /* ..ofc if we're not at the front already :3c*/
-        // unlink
+      // Page hit: move to front
+      if (curr != head) {
         if (curr->m_next)
           curr->m_next->m_prev = curr->m_prev;
         else
-          tail = curr->m_prev; /* if it was tail*/
+          tail = curr->m_prev;
+
         if (curr->m_prev)
           curr->m_prev->m_next = curr->m_next;
 
-        // move that guy to the front!!!
         curr->m_next = head;
         curr->m_prev = NULL;
         head->m_prev = curr;
         head = curr;
       }
-      return true; /* page found!*/
+      return true;
     }
     curr = curr->m_next;
   }
-  return false; /* page not found.. :c*/
+  return false;
 }
 
-// add page to front
+/* Inserts a page to the front of the linked list */
 void insertPage(int page) {
   Node *newNode = (Node *)malloc(sizeof(Node));
   newNode->m_page = page;
@@ -125,7 +133,7 @@ void insertPage(int page) {
   size++;
 }
 
-// remove the LRU page (tailpop)
+/* Evicts least recently used page (tail of the list) */
 void evictLRU() {
   if (!tail)
     return;
@@ -136,44 +144,38 @@ void evictLRU() {
   } else {
     head = tail = NULL;
   }
-
   free(oldTail);
   size--;
 }
 
+/* Displays the table with all memory states during simulation */
 void printTable(const Table *table, const int pages[], const int n) {
   printf("\n--- Page Table (Matrix View) ---\n");
   printf("Page   :");
-  for (int i = 0; i < n; i++) {
+  for (int i = 0; i < n; i++)
     printf("%3d", pages[i]);
-  }
   printf("\n------------------------------------------------------\n");
 
   for (int i = 0; i < table->m_frameSize; i++) {
     printf("Frame %d:", i);
     for (int j = 0; j < table->m_tableSize; j++) {
       int val = table->m_table[j].m_frame[i];
-      if (val == -1) {
-        printf("  -");
-      } else {
-        printf("%3d", val);
-      }
+      printf(val == -1 ? "  -" : "%3d", val);
     }
     printf("\n");
   }
 
-  // Optional: print fault row
+  // Indicate which accesses caused faults
   printf("Faults :");
-  for (int j = 0; j < table->m_tableSize; j++) {
+  for (int j = 0; j < table->m_tableSize; j++)
     printf("  %c", table->m_table[j].m_fault ? ' ' : '*');
-  }
   printf("\n");
 }
 
+/* Print current memory layout (linked list view) */
 void printMemory() {
   Node *curr = head;
-  printf("-----------------------\n");
-  printf("Memory:\n");
+  printf("-----------------------\nMemory:\n");
   while (curr) {
     printf("%d\n", curr->m_page);
     curr = curr->m_next;
@@ -181,6 +183,7 @@ void printMemory() {
   printf("-----------------------\n");
 }
 
+/* Simulates LRU page replacement using linked list */
 void simulateLRU(const int pages[], const int n, const int frameSize) {
   int pageFaults = 0;
   Table *table = createTable(n, frameSize);
@@ -193,9 +196,8 @@ void simulateLRU(const int pages[], const int n, const int frameSize) {
 
     if (!accessed) {
       pageFaults++;
-      if (size == frameSize) {
+      if (size == frameSize)
         evictLRU();
-      }
       insertPage(page);
       printf("Page fault!\n");
     } else {
@@ -207,16 +209,19 @@ void simulateLRU(const int pages[], const int n, const int frameSize) {
     for (int wait = 0; wait < WAIT_TIME; wait++)
       ;
   }
+
   printTable(table, pages, n);
   printf("Total Page Faults: %d\n", pageFaults);
 }
 
+/* Simulates Clock page replacement algorithm */
 void simulateClock(const int pages[], const int n, const int frameSize) {
   int pageFaults = 0;
   int *frame = (int *)malloc(sizeof(int) * frameSize);
   bool *reference = (bool *)malloc(sizeof(bool) * frameSize);
-  int hand = 0;
+  int hand = 0; // Clock hand
 
+  // Initialize frame and reference bits
   for (int i = 0; i < frameSize; i++) {
     frame[i] = -1;
     reference[i] = false;
@@ -238,6 +243,7 @@ void simulateClock(const int pages[], const int n, const int frameSize) {
       }
     }
 
+    // Page fault handling using Clock algorithm
     if (!hit) {
       pageFaults++;
       while (true) {
@@ -253,7 +259,7 @@ void simulateClock(const int pages[], const int n, const int frameSize) {
       }
     }
 
-    // Update linked list from scratch (to reuse captureState)
+    // Sync linked list with clock frame
     while (head)
       evictLRU();
     for (int j = frameSize - 1; j >= 0; j--) {
@@ -275,6 +281,7 @@ void simulateClock(const int pages[], const int n, const int frameSize) {
   free(reference);
 }
 
+/* Prints program usage instructions */
 void printHelp() {
   printf("------------------------------------------------\n");
   printf("ASSIGNMENT 5 - LRU PAGE REPLACEMENT USING STACK\n");
@@ -282,10 +289,8 @@ void printHelp() {
   printf("./page (Page Stream) (Frame Size) (Algorithm)\n");
 }
 
+/* Main entry: parses input arguments and runs simulation */
 int main(int argc, char *argv[]) {
-  // argv[1] == ps (1, 2, 3 or 4)
-  // argv[2] == franeSize (3 or 4)
-  // argv[3] == algo (LRU or Clock)
   if (argc != 4) {
     printHelp();
     exit(1);
@@ -295,6 +300,7 @@ int main(int argc, char *argv[]) {
   const int *pages = NULL;
   int pageCount = 0;
 
+  // Load selected page stream
   switch (dataset) {
   case 1:
     pages = ps1;
@@ -325,7 +331,7 @@ int main(int argc, char *argv[]) {
     exit(1);
   }
 
-  // algo
+  // Run selected algorithm
   if (strcmp(argv[3], "LRU") == 0) {
     simulateLRU(pages, pageCount, frameSize);
   } else if (strcmp(argv[3], "Clock") == 0) {
