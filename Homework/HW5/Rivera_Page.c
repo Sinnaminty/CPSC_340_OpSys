@@ -211,6 +211,70 @@ void simulateLRU(const int pages[], const int n, const int frameSize) {
   printf("Total Page Faults: %d\n", pageFaults);
 }
 
+void simulateClock(const int pages[], const int n, const int frameSize) {
+  int pageFaults = 0;
+  int *frame = (int *)malloc(sizeof(int) * frameSize);
+  bool *reference = (bool *)malloc(sizeof(bool) * frameSize);
+  int hand = 0;
+
+  for (int i = 0; i < frameSize; i++) {
+    frame[i] = -1;
+    reference[i] = false;
+  }
+
+  Table *table = createTable(n, frameSize);
+
+  for (int i = 0; i < n; i++) {
+    system("clear");
+    int page = pages[i];
+    bool hit = false;
+
+    // Check for page hit
+    for (int j = 0; j < frameSize; j++) {
+      if (frame[j] == page) {
+        reference[j] = true;
+        hit = true;
+        break;
+      }
+    }
+
+    if (!hit) {
+      pageFaults++;
+      while (true) {
+        if (!reference[hand]) {
+          frame[hand] = page;
+          reference[hand] = true;
+          hand = (hand + 1) % frameSize;
+          break;
+        } else {
+          reference[hand] = false;
+          hand = (hand + 1) % frameSize;
+        }
+      }
+    }
+
+    // Update linked list from scratch (to reuse captureState)
+    while (head)
+      evictLRU();
+    for (int j = frameSize - 1; j >= 0; j--) {
+      if (frame[j] != -1)
+        insertPage(frame[j]);
+    }
+
+    addFrame(table, captureState(hit));
+    printf("Accessing page %d: %s\n", page, hit ? "Page hit!" : "Page fault!");
+    printMemory();
+    for (int wait = 0; wait < WAIT_TIME; wait++)
+      ;
+  }
+
+  printTable(table, pages, n);
+  printf("Total Page Faults: %d\n", pageFaults);
+
+  free(frame);
+  free(reference);
+}
+
 void printHelp() {
   printf("------------------------------------------------\n");
   printf("ASSIGNMENT 5 - LRU PAGE REPLACEMENT USING STACK\n");
@@ -265,7 +329,7 @@ int main(int argc, char *argv[]) {
   if (strcmp(argv[3], "LRU") == 0) {
     simulateLRU(pages, pageCount, frameSize);
   } else if (strcmp(argv[3], "Clock") == 0) {
-    //
+    simulateClock(pages, pageCount, frameSize);
   } else {
     printf("Invalid Algorithm.\n");
     printHelp();
