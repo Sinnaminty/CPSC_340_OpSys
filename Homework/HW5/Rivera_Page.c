@@ -17,7 +17,7 @@
 #define MAX_PAGES 4   // Max pages that can fit in memory
 #define MAX_FRAMES 50 // Max number of frames in the table
 
-// Predefined page request streams (used for testing)
+// Predefined page request streams
 const int ps1[PS1_SIZE] = {7, 0, 1, 2, 0, 3, 0, 4, 2, 3, 0, 3, 2};
 const int ps2[PS2_SIZE] = {1, 0, 2, 2, 1, 7, 6, 7, 0, 1, 2, 0, 3, 0, 4, 5, 1,
                            5, 2, 4, 5, 6, 7, 6, 7, 2, 4, 2, 7, 3, 3, 2, 3};
@@ -26,7 +26,7 @@ const int ps3[PS3_SIZE] = {7, 0, 1, 2, 0, 3, 0, 4, 2, 3,
 const int ps4[PS4_SIZE] = {1, 2, 3, 4, 2, 1, 5, 6, 2, 1,
                            2, 3, 7, 6, 3, 2, 1, 2, 3, 6};
 
-/* Doubly linked list node used to simulate memory */
+/* Doubly linked list node */
 typedef struct Node {
   int m_page;          // Page number
   struct Node *m_prev; // Previous node in list
@@ -184,13 +184,15 @@ void printMemory() {
 }
 
 /* Simulates LRU page replacement using linked list */
-void simulateLRU(const int pages[], const int n, const int frameSize) {
+void simulateLRU(const int pages[], const int dataset, const int n,
+                 const int frameSize) {
   int pageFaults = 0;
   Table *table = createTable(n, frameSize);
 
   for (int i = 0; i < n; i++) {
     system("clear");
     int page = pages[i];
+    printf("LRU /w Frame Size %d on dataset %d\n", frameSize, dataset);
     printf("Accessing page %d: ", page);
     bool accessed = accessPage(page);
 
@@ -215,7 +217,8 @@ void simulateLRU(const int pages[], const int n, const int frameSize) {
 }
 
 /* Simulates Clock page replacement algorithm */
-void simulateClock(const int pages[], const int n, const int frameSize) {
+void simulateClock(const int pages[], const int dataset, const int n,
+                   const int frameSize) {
   int pageFaults = 0;
   int *frame = (int *)malloc(sizeof(int) * frameSize);
   bool *reference = (bool *)malloc(sizeof(bool) * frameSize);
@@ -268,6 +271,7 @@ void simulateClock(const int pages[], const int n, const int frameSize) {
     }
 
     addFrame(table, captureState(hit));
+    printf("Clock /w Frame Size %d on dataset %d\n", frameSize, dataset);
     printf("Accessing page %d: %s\n", page, hit ? "Page hit!" : "Page fault!");
     printMemory();
     for (int wait = 0; wait < WAIT_TIME; wait++)
@@ -333,9 +337,9 @@ int main(int argc, char *argv[]) {
 
   // Run selected algorithm
   if (strcmp(argv[3], "LRU") == 0) {
-    simulateLRU(pages, pageCount, frameSize);
+    simulateLRU(pages, dataset, pageCount, frameSize);
   } else if (strcmp(argv[3], "Clock") == 0) {
-    simulateClock(pages, pageCount, frameSize);
+    simulateClock(pages, dataset, pageCount, frameSize);
   } else {
     printf("Invalid Algorithm.\n");
     printHelp();
