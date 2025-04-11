@@ -141,13 +141,13 @@ void evictLRU() {
   size--;
 }
 
-void printTable(const Table *table) {
+void printTable(const Table *table, const int pages[], const int n) {
   printf("\n--- Page Table (Matrix View) ---\n");
-  printf("Time : ");
-  for (int j = 0; j < table->m_tableSize; j++) {
-    printf("%3d", j);
+  printf("Page   :");
+  for (int i = 0; i < n; i++) {
+    printf("%3d", pages[i]);
   }
-  printf("\n");
+  printf("\n------------------------------------------------------\n");
 
   for (int i = 0; i < table->m_frameSize; i++) {
     printf("Frame %d:", i);
@@ -207,11 +207,16 @@ void simulateLRU(const int pages[], const int n, const int frameSize) {
     for (int wait = 0; wait < WAIT_TIME; wait++)
       ;
   }
+  printTable(table, pages, n);
   printf("Total Page Faults: %d\n", pageFaults);
-  printTable(table);
 }
 
-void printHelp() {}
+void printHelp() {
+  printf("------------------------------------------------\n");
+  printf("ASSIGNMENT 5 - LRU PAGE REPLACEMENT USING STACK\n");
+  printf("USAGE:\n");
+  printf("./page (Page Stream) (Frame Size) (Algorithm)\n");
+}
 
 int main(int argc, char *argv[]) {
   // argv[1] == ps (1, 2, 3 or 4)
@@ -222,8 +227,50 @@ int main(int argc, char *argv[]) {
     exit(1);
   }
 
-  // ./LRU 1 3 LRU
-  simulateLRU(ps1, PS1_SIZE, 3);
+  int dataset = atoi(argv[1]);
+  const int *pages = NULL;
+  int pageCount = 0;
+
+  switch (dataset) {
+  case 1:
+    pages = ps1;
+    pageCount = PS1_SIZE;
+    break;
+  case 2:
+    pages = ps2;
+    pageCount = PS2_SIZE;
+    break;
+  case 3:
+    pages = ps3;
+    pageCount = PS3_SIZE;
+    break;
+  case 4:
+    pages = ps4;
+    pageCount = PS4_SIZE;
+    break;
+  default:
+    printf("Invalid dataset number. Select 1-4.\n");
+    printHelp();
+    exit(1);
+  }
+
+  int frameSize = atoi(argv[2]);
+  if (frameSize != 3 && frameSize != 4) {
+    printf("Invalid frame size. Must be either 3 or 4.");
+    printHelp();
+    exit(1);
+  }
+
+  // algo
+  if (strcmp(argv[3], "LRU") == 0) {
+    simulateLRU(pages, pageCount, frameSize);
+  } else if (strcmp(argv[3], "Clock") == 0) {
+    //
+  } else {
+    printf("Invalid Algorithm.\n");
+    printHelp();
+    exit(1);
+  }
 
   return 0;
 }
