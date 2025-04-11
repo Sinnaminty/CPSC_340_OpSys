@@ -2,6 +2,7 @@
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #define PS1_SIZE 13
 #define PS2_SIZE 33
@@ -210,8 +211,19 @@ void simulateLRU(const int pages[], const int n, const int frameSize) {
   printTable(table);
 }
 
-int main() {
-  printf("3 Frame LRU\n");
+void printHelp() {}
+
+int main(int argc, char *argv[]) {
+  // argv[1] == ps (1, 2, 3 or 4)
+  // argv[2] == franeSize (3 or 4)
+  // argv[3] == algo (LRU or Clock)
+  if (argc != 4) {
+    printHelp();
+    exit(1);
+  }
+
+  // ./LRU 1 3 LRU
   simulateLRU(ps1, PS1_SIZE, 3);
+
   return 0;
 }
