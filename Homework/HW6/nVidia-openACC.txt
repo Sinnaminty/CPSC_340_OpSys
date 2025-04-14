@@ -1,0 +1,968 @@
+Personal Supercomputing for Longest Common Sequence Problem Using OpenACC over NVIDIA Tesla
+
+By
+xxx
+Nanyang Institute of Technology
+
+
+
+
+
+
+A Thesis Submitted in Partial Fulfillment of 
+The Requirements for the Degree of
+Master of Science in Computer Science
+To the Graduate College of
+East Stroudsburg University of Pennsylvania
+
+
+April 9, 2025
+
+
+Approval Page
+This thesis by xxx submitted to the Graduate and Extended Studies in partial and fulfillment of the degree of Master of Science in Computer Science on May 12, 2017 has been examined by the following faculty and it meets or exceeds the standards required for graduation as testified by our signatures below.
+
+
+
+
+
+ABSTRACT
+
+
+A Thesis Submitted in Partial Fulfillment of the Requirements for the Degree of Master of Science in Computer Science to the Graduate and Extended Studies office of East Stroudsburg University of Pennsylvania.
+ 
+
+Student's Name: xxxxxxx i, B.S.
+
+Title: Personal Supercomputing for longest common sequence problem 
+         using OpenACC over NVIDIA Tesla
+
+Data of Graduation: May 12, 2017
+
+Thesis Chair: Haklin, Kimm, Ph.D.
+
+Thesis Member:
+
+Thesis Member:
+
+Abstract
+
+The longest common subsequence (LCS) problem is one of the most useful algorithms being applied in various research areas. This problem is known to be NP-hard for arbitrary data. In this thesis, we present a parallel LCS algorithm using the GPU-based OpenACC model, which is based on the existing dynamic approach - parallel anti-diagonal scheme is applied in order to eliminate the data dependencies.  The proposed algorithm in this thesis has been benchmarked using four different computing models: OpenMPI, OpenMP, hybrid of OpenMPI & OpenMP, and OpenACC model.
+The parallel LCS algorithm has been implemented using Swiss-Prot databases over these computing models, so that their execution times, speed-ups and speed-ratios have been measured and analogized among them extensively. Our experimental results reveal that the computation of our algorithm on OpenACC (on GPU) is around 16 times faster than the execution on a single CPU, and around 2 times faster than on the octa-core processor. The OpenACC model's performance stands out among the four tested models in solving the LCS problem.
+
+ACKNOWLEGEMENTS
+
+
+TABLE OF CONTENTS
+LIST OF TABLES	vii
+LIST OF FIGURES	viii
+1.	INTRODUCTION	1
+1.1	High Performance Computing	1
+1.1.1	Distributed Computing	1
+1.1.2	Parallel Computing	1
+1.2	Motivation	2
+1.3	Thesis Contributions	3
+1.4	Outline of the Thesis	3
+2.	BACKGROUND AND RELATED WORK	5
+2.1	Longest Common Subsequence	5
+2.2	Relation to other Problems	6
+2.2.1	Edit Distance	6
+2.2.2	Longest Increasing Subsequence	6
+2.2.3	Maximum Independent Set	7
+2.3	Related Work	7
+3.	OVERVIEW OF MULTI-COMPUTING MODELS	10
+3.1	Multi-CPUs Computing Models	10
+3.1.1	OpenMPI Model	10
+3.1.2	OpenMP Model	11
+3.1.3	OpenMPI & OpenMP-based Hybrid Model	12
+3.2	GPU using OpenACC Computing Model	13
+4.	ALGORITHM MODEL	15
+4.1	Brute-Force Algorithm	15
+4.2	Recursive Algorithm	16
+4.3	Bit-vector Algorithm	17
+4.4	Dynamic Algorithm	19
+4.5	Anti-diagonal Algorithm in Parallel	21
+5.	IMPLEMENTATION	24
+5.1	Multi-CPUs Programming Implementations	24
+5.1.1	OpenMPI Implementation	24
+5.1.2	OpenMP Implementation	26
+5.1.3	OpenMPI & OpenMP-based Hybrid Implementation	28
+5.2	GPU using OpenACC Programming Implementation	30
+6.	EVALUATION	32
+6.1	Dataset and Experimental Setup	32
+6.2	OpenMPI Experiments	33
+6.3	OpenMP Experiments	36
+6.4	OpenMPI & OpenMP-based Hybrid Experiments	38
+6.5	OpenACC Experiments	40
+7.	CONCLUSION	42
+7.1	Future Work	42
+APPENDIX A. WORKSTATION CONFIGURATION	43
+A.1	OpenMPI Setup	43
+A.2	MPI Cluster Setup	43
+A.3	OpenMP Setup	45
+A.4	OpenMPI & OpenMP-based Hybrid Setup	45
+A.5	OpenACC Setup	46
+REFERENCES	47
+
+
+
+LIST OF TABLES
+Table 1 An example of subsequence	5
+Table 2 An example of common subsequences and LCS	6
+Table 3 Precomputed matching data for the query string "ACBCBAB"	17
+Table 4 Result of calculating LCS in bit-vector operation	18
+Table 5 The table of score matrix	21
+Table 6 Hardware configuration of CPU	32
+Table 7 Hardware configuration of GPU	32
+
+
+
+LIST OF FIGURES
+Figure 1 Computing Model of OpenMPI	11
+Figure 2 Computing Model of OpenMP	11
+Figure 3 A hybrid computing model of OpenMPI & OpenMP	13
+Figure 4 A computing model of OpenACC-based GPU	14
+Figure 5 The dependency of cells in DP approach	22
+Figure 6 Anti-diagonal approach in parallel	22
+Figure 7 A skeleton of OpenMPI program	24
+Figure 8 An example of broadcast (left) and scatter (right)	26
+Figure 9 A skeleton of OpenMP program	26
+Figure 10 A skeleton of OpenMPI & OpenMP-based hybrid program	28
+Figure 11 A skeleton of OpenACC program	30
+Figure 12 The LCS execution time of MPI and OpenACC	35
+Figure 13 Speed UP of MPI and OpenACC	35
+Figure 14 The LCS execution time of OpenMP and OpenACC	37
+Figure 15 Speed UP of OpenMP and OpenACC	37
+Figure 16 The LCS execution time of MPI+OpenMP and OpenACC	39
+Figure 17 Speed UP of MPI+OpenMP and OpenACC	39
+Figure 18 The LCS execution time	41
+Figure 19 The speed ratio of OpenACC to other implementations	41
+
+
+
+
+
+1. INTRODUCTION
+1.1 High Performance Computing 
+      As the era of big data characterized by volume, velocity and variability [1] comes, a tremendous revolution has been witnessed regarding with data processing and computing in the past decade. The ability to work with a vast number of datasets on demand is critical. Traditional computing with a single computer having a single processor to deal with a small amount of data are not suitable for the current demands. High performance computing is taking the primary role of handling massive datasets. Computing models like distributed and parallel are principal forms of high performance computing. By using those two typical computing models, all of hardware components can be utilized at most so that the amount of data can be processed are increased and the speeds for dealing with the datasets are improved at a very high rate. 
+1.1.1 Distributed Computing 
+      Distributed computing is formed by several autonomous computational processors, which each entity with its own local memory communicates with others by message passing to cooperate in solving computational problems [2].  With the advantages of fault tolerance, resource share, load sharing and easy to expand, distributed computing is implemented in numerous practical products. For instance, MPI is an excellent and basic implementation for utilizing the design of distributed memory.  Although it is proposed in 1992 [2], a lot of modern distributed frameworks inspired by it are implemented currently.  Framework like Hadoop [3] adapting MapReduce, a distributed processing paradigm, have evolved from theoretical paper to a useful product to deal with a substantial number of data in a broad of areas. Frameworks like Storm [4] and Spark [5] have been developed to handle massive streaming datasets in real-time based on the distributed computing.
+1.1.2 Parallel Computing
+     Shared memory [6] is the primary focus of parallel computing, which all processors have directly access to common physical memory. Parallel tasks can directly address and access the same logical memory locations. Compared with distributed computing, each CPU communicates with others by sharing the whole logical memory instead of sharing data through message passing among CPUs. With the advent of multi-core CPUs integrated with most of computers nowadays, parallel computing is more accessible for researching and developing. Parallelism paradigms like task parallelism and data parallelism are two foremost forms of parallel computing. OpenMP [6] is a directive based implementation of parallel computing on multi-core processors for supporting both parallelisms. What's more, when the concept of graphics processing units (GPUs) has already been popular and frequently used in many platforms such as NVIDIA, AMD, and Intel, GPU-based parallel computing is emerging in many areas such as science computing and artificial intelligence. CUDA [7], a product of NVIDIA, is a typical genre of supporting parallel computing by using CUDA-based GPU for general purpose processing. With support of heterogeneous GPU/CPU computing, CUDA adapts a programming model called unified memory for transferring data between CPU and GPU and launching the execution on the kernel. Like OpenMP, OpenACC [8] is also a parallel programming framework for accelerating computing by using compiler directives and additional supporting libraries based on the CUDA platform.  
+1.2 Motivation
+      The classic Longest Common Subsequence (LCS) problem has been encountered in numerous fields [9] such as sequence alignment in bioinformatic [10], speech recognition [11], machine translation [12], image retrieval [13], social networks analysis of matching event and friend's suggestions [14], computer security virtues signature matching [15]. What's more, with the development of big data technology, adapting the LCS to deal with the huge size of input data is not an end. For instance, in data mining, LCS has been applied for pattern identification [16], and database query optimization [17].  
+      Unfortunately, current parallel algorithms based on the CPU-based systems used in the previous work lack an ability to increase the amount of data and improve the speed of the algorithm at most. However, the CUDA-based GPU has been applied in parallel computing in recent years, and reduces the execution time by taking advantage of multiple executed units on the GPU. It is widely encountered in several fields. For instance, Daga et al. [18] used CUDA for implementing parallel image processing. Jian et al. [19] proposed a parallel data mining technique. Besides, some traditional algorithms have been implemented on CUDA to gain significant speed-up. For instance, Wang et al. [20] implemented a fast-parallel suffix array algorithm on CUDA. Pospichal et al. [21] made a parallel genetic algorithm on the CUDA architecture, which handles parallel island-based genetic algorithm to accelerate the evolutionary of complex tasks.  
+1.3 Thesis Contributions
+      Inspired by the CUDA-based GPU platform, we propose a directive-based OpenACC parallel programming model to solve the LCS problem. In this thesis, we first introduce the algorithm model of our LCS problem from sequential implementation to anti-diagonal implementation in parallel. Then we introduce development of our anti-diagonal by using OpeMPI, OpenMP, OpenMPI&OpenMP-based hybrid and OpenACC implementations, that performs out algorithms in parallel with multi-core CPUs and GPU. And finally we present experimental results using speed-up and speed-ratio over execution time metrics to measure the performance of each algorithm. After comparing all experiments, the results show that the implementation of our algorithm in OpenACC (on GPU) is around 16 times faster than the one in serial on CPU, and around 2 times faster than the one in multi-core on 8 CPUs. The efficiency of implementations in CPUs is bounded by the number of CPU cores. What's more, the OpenACC to solve the LCS problem is the best version of implementations compared to other versions. 
+1.4 Outline of the Thesis
+      The remaining of the thesis is organized in the following:
+      Chapter 2 gives background and related work of LCS problem. It introduces the definitions of LCS problem, similar problems and the previous research related to it.
+      	Chapter 3 demonstrates four computing models used in this thesis. One category is CPUs-based model including OpenMPI, OpenMP, and OpenMPI & OpenMP hybrid. Another category is GPU-based OpenACC model.
+      	Chapter 4 discusses most used algorithms for LCS problems. It includes Brute-Force, recursive, bit-vector, dynamic approach and anti-diagonal in parallel.
+      	Chapter 5 implements the anti-diagonal algorithm in parallel by using four different implementations. One category is CPUs-based implementation including OpenMPI, OpenMP, and OpenMPI & OpenMP hybrid. Another category is GPU-based OpenACC implementation.
+      	Chapter 6 experiments all our implementation based on the execution time. It gives speed-up and speed-ratio two metrics to measure the performance of our algorithms. 
+
+2. BACKGROUND AND RELATED WORK
+2.1 Longest Common Subsequence
+      The Longest Common Subsequence problem can be simply defined as the research that finding the longest common subsequence between two given sequences. Now, armed with the basic definition of LCS problem, the full explanation of this research is demonstrating in this section step by step. We introduce several terms related to the longest common subsequence problem including subsequence and common subsequence. What's more, we give the formal definition of longest common subsequence problem. 
+      Definition 1: Given a sequence X=(x_1, x_2,x_3,...,x_m), another sequence Z=(z_1, z_2,z_3,...,z_m) is a subsequence of X if there exists a strictly increasing sequence (i_1, i_2,i_3,...,i_m) of indices of X such that for all j=1, 2, 3, ..., k, we have X_(i_j )= Z_j. [22]
+      Definition 2: Given two sequences X=(x_1, x_2,x_3,...,x_m), and sequence Y=(y_1, y_2,y_3,...,y_m), a subsequence Z is a common subsequence of  X and  Y if Z is a subsequence of both X and Y.
+      Definition 3: Given two sequences X=(x_1, x_2,x_3,...,x_m), and sequence Y=(y_1, y_2,y_3,...,y_m), a subsequence L is a longest common subsequence of  X and  Y if L is the longest of all common subsequences of both X and Y.
+      
+Given X
+(A, B, C, B, D, A, B)
+Subsequence Z
+(B, C, D, B)
+Index sequence
+(2, 3, 5, 7)
+Table 1 An example of subsequence
+      Table 1 depicts an example of subsequence. Z(B,C,D,B) is a subsequence of X(A,B,C,B,D,A,B), for the corresponding index sequence (2, 3, 5, 7) keeps increasing in the sequence X. Tables 2 shows an example of common subsequence. For this case, the total number of common subsequence are 6. Table 2 demonstrates an example of longest common subsequence. Based on the all common subsequences, we can easily find a longest common subsequence that is (B, C, D).
+      
+      
+Given X
+(A, B, C, B, D, A, B)
+Given Y
+(B, C, D)
+Common subsequence
+(B), (C), (D), (B, C), (B, C, D), (C, D)
+Longest common subsequence
+(B, C, D)
+Table 2 An example of common subsequences and LCS
+2.2 Relation to other Problems
+2.2.1 Edit Distance
+      The problem of edit distance is widely used in evaluating machine translation and speech recognition. It usually measures the minimum edit distances between two strings, and includes minimum operations of insertion, deletion, and substitution. 
+      string X:  P A R A L L*Y D I S T R I B U I E D 
+      string Y:  P A R A L L E L D I S T R I B U T E D
+      The edit distance of the above example is 3 if each operation has cost of 1, or is 6 if Levenshtein [23] where substitutions cost is 2. This problem is very similar to the LCS problem and adopts the dynamic programming for minimum edit distance through finding the recursive pattern to sub-problems. In Balhaf et al. [24], they presented a CUDA implementation of edit distance based on dynamic programming approach, which shows 11 times faster than the sequential one. 
+2.2.2 Longest Increasing Subsequence
+      Longest increasing subsequence (LIS) is simplify defined as LIS[0...m] is a longest subsequence of string X, which LIS[i]< LIS[j] for every index pair of i and j (i<j). For example, we have X={1,2,3,9,8,6,4,5}. We can see the increasing subsequences are 1239, 1238, 1236, 12345. However, the longest one is 12345.
+      For this problem, it is a special case of edit distances. Similar to the edit-distance, LIS can be solved by using dynamic programming solution adopted from LCS problem. In Kimm [25], a dynamic programming approach based on a pipeline optical bus system for finding LIS is presented, which runs with the time complexity of  O(m) with n processors of this architecture. The solution to LCS problem is easy to be transformed to LIS problem. 
+2.2.3 Maximum Independent Set
+      Finding an independent set is a well-known problem in graph theory in which no adjacent two of sets are connected. A maximum independent set (MIS) is a largest independent set among all possible the independent sets in a given graph. In general graph, this problem is known to be NP-hard [26]. However, finding a MIS in other applied graphs, mostly perfect graph, is NP-complete or P-complete. In Kimm [27], he proposed an O(n log?n) algorithm for finding a maximum independent set in a permutation graph, which is much faster than the O(n^2) presented by Farber and Keil [28]. Kimm's algorithm archives O(n log?n) time complexity by generating dynamic stacks to store the positions of numbers by using binary insertion so as to keep a local optimum to be global optimum, are similar to dynamic programming technique used in LCS problem. 
+2.3 Related Work
+      The longest common subsequence (LCS) problem has been studied in several papers due to its wide applicability in many different fields. Nowadays, we can handle the LCS problem more efficiently by using GPU in parallel. In this section, we summarize related work for solving LCS problem and parallel algorithm supported by GPU to solve LCS problem. 
+      For solving LCS problem, a great number of approaches has been proposed and developed. Those algorithms of finding an LCS in input datasets can be roughly classified into two categories: (1) Sequential implementation; (2) Parallel implementation. In the sequential implementation of LCS problem, the worst algorithm is Brute-Force [22], which solves LCS problem by enumerating all subsequences of X and checks each subsequence with other subsequences of Y. In this approach, it takes exponential time that is O(2^n), where n is the length of input sequences. An improved algorithm to solve LCS problem is recursive finding [22] that needs time ?O(2?^^ n) in the worst case. The high-improved and efficient algorithm for solving LCS problem sequentially is dynamic programming [29], which is a classic approach for solving LCS problem with time complexity O(mn). In [30], Masek et al. proposed an improved dynamic programming for LCS problem that runs in O(mn/logn) time, where n=m and the sequences are drawn from a set of bounds size.
+      In addition, parallel implementation of finding LCS was proposed, for the LCS problem is NP-hard problem [31] when the input is an arbitrary number of sequences. As the increase of size of data, parallel algorithm is an optimized solution to solve those kinds of large size problems. Parallel algorithms like anti-diagonalization [32] and bit-wise [33] are two most widely researched parallel models for solving the LCS problem. In [34], efficient CREW-PRAM parallel LCS algorithm was given that runs in O(log m/log n) time with O(mn/log m) processors. In [35], the bulk-synchronous parallelism was presented that runs bit-parallel LCS algorithm.
+      Yang et al. [36] proposed an improved parallel algorithm for solving LCS problem, which changes the data dependency in the score table based on the basic dynamic programming algorithm, and makes it possible to implement the DP algorithm in higher parallelism. It re-formulates the existing DP pattern instead of using original DP by calculating one diagonal by one. Through the revision, it uses the CUDA platform for implementation and experiments and the results show that it speeds up the algorithm 3 times than the diagonal parallel algorithms. 
+      In Ozsoy et al. [9], bit-wise algorithm is applied for solving LCS in parallel, which uses bit operation on bit-vector for calculating the length of the LCS. It constructs a binary match matrix for two given sequences to reduce the space requirement. Based on the binary matrix, precomputation can be operated for each element in the given subsequence to binary row for each symbol. It uses CUDA to implement this parallel algorithm. Specially, inter-task parallelism is used to implement bit-vector computations using multiple threads. For memory spaces, element of each string is placed in cache-able read-only memory that is constant memory in CUDA. What's more, it divides data and related kernels into smaller chunks to implement execution of multiple kernels concurrently and applies the different CPUs to handle different GPUs for leveraging multiple GPUs. 
+      For implementing LCS on GPU in parallel, Kloetzli et al. [37] presented the implementation of parallel dynamic programming that uses CPU for a linear-space, cache-coherent algorithm, and applies a three-level algorithm on the GPU to solve the sub-problems efficiently. In its CPU algorithm, the linear space algorithm calculates LCS matrix through partitioning the matrix into 4-way smaller pieces. The main idea of 4-way partition is to divide the matrix into top-left, top-right, bottom-left, and bottom-right based on the specified cut-off value. As for its GPU algorithm, the quadratic-space dynamic programming (DP) was used in the first level parallel GPU algorithm, which splits the n*n logical matrix into m blocks in each dimension and do the computation job in each diagonal. In the second level, GPU linear space DP was applied to solve each grid from GPU level 1. It splits the submatrix from level 1 into more smaller blocks. Finally, GPU serial linear space DP was adopted in the third level. It assigns a single thread to compute each block divided in the second level. This combined algorithm that runs on CPU and optimizes GPU execution in parallel to solve the LCS problem in linear time.
+      	Researched in recent paper, although CUDA-based GPU is proposed to solve the LCS problem and OpenACC-based GPU is also applied for dealing with numerous other problems [38,39,40], there are no published paper at this time that demonstrated the OpenACC programming model to handle LCS problem efficiently and conveniently based on our research. Thus, we choose to compare using OpenACC implementation with multi-CPUs implementation in this paper.   
+
+3. OVERVIEW OF MULTI-COMPUTING MODELS
+      In this section, we introduce computing models for accelerating the speed of handling massive datasets. This introduces two kinds of computing models including multi-CPUs and GPU. In addition, two models including distributed computing and parallel computing are demonstrated thoughtfully. What's more, the hybrid model based on OpenMPI and OpenMP is illustrated.
+3.1 Multi-CPUs Computing Models
+3.1.1 OpenMPI Model 
+      OpenMPI model is an implementation of distributed computing. A computing model of OpenMPI is illustrated in the Figure 1. Actually, OpenMPI is an implementation of the Message Passing Interface (MPI) [2] that resents a standardized and portable message-passing system designed by a group of researchers from academia and industry to function on a wide variety of parallel computers. The syntax and semantics of a core of library routines are defined for writing portable message-passing program in multiple programming languages such as Fortran, C and Java. 
+      OpenMPI implemented the MPI with C and provides the model for distributed memory programming, which consists of a set of heterogeneous or homogeneous computers to achieve the purpose of distributed computing with message-passing among those computers. The style of MPI programing emphasis on messages. Its core library can be described as huge since consisting of more than 400 functions. However, it also can be viewed as a mini library, for it can be categories as 9 concepts and 6 variations. 
+      For programming in MPI mode, the user needs to code the MPI startup function in the main function as the beginning of MPI program region, and put MPI tear down function in the main function as the end of MPI program region. Besides those two flag functions, all codes are regular sequential programing.  In the parallel region, the user can define the number of processes as their own requirements. Each process has its own rand and resides inside the communicator. Point-to-Point and Collective communication are two classic and useful methods for messaging-passing between different processes. In the case of point-to point communication, blocking and non-blocking send/receive are used for communicating. In the group of collective computations, there are broadcast, gather, and scatter data transferring style for communicating. In addition, the computation of reduction and scanning are applied for global computing when communication happens between processes.  In the case of data race condition, no processes in the communicator can pass the barrier mechanism until all of them call the function. 
+
+Figure 1 Computing Model of OpenMPI
+
+
+Figure 2 Computing Model of OpenMP
+3.1.2 OpenMP Model
+      Open Multi Processing (OpenMP) [6] model is an implementation of parallel computing based on the shared memory. A computing model of OpenMP is illustrated in the Figure 2. It is a specification for a set of control structures, compiler directives, library routines, and environment variables. The advantages of OpenMP are that the user just needs to code the directives in the above of regular sequential region without or minor modifying the structure of the original sequential codes. 
+      In the OpenMP parallelism, execution flow is divided into different threads. The folk-join model is adopted in the OpenMP.  A set of threads is generated inside a process for doing share many resources, particularly all the threads have access to the process global memory. At process activation, only thread 0 (the master thread) is running. Once entering a parallel region, the master awakes the other threads to accomplish the jobs in parallel. After the jobs, all other threads will join the master thread in the end of parallel region for the next step. There is possible more than one parallel region to achieve the purpose of parallel execution in different pieces of the codes. 
+      The classic OpenMP model for programming is just put the one necessary directive to indicate the beginning of the parallel OpenMP region in main function. Besides this region, the codes are regular sequential parts. Communications between different threads in the OpenMP are accomplished by shared variables. Inside a parallel region, the variables of the OpenMP program can be defined as shared or private as the users' requirements. Barrier and Mutual exclusion are two most common forms of synchronization for protecting data conflicts. Atomic are provided as mutual exclusion for updating memory location in the case of data race conditions.
+3.1.3 OpenMPI & OpenMP-based Hybrid Model
+      As discussed before, OpenMPI model consists of distributed memory, distributed network, message passing, and flexible configuration. OpenMP is featured as shared memory, multi-core processors, directive based, and easy to program and debug. However, there are some shortcomings for adopting one pure model to program. For pure MPI, it is difficult to develop and debug because of high latency, low bandwidth, explicit communication, and large granularity. For pure OpenMP, it is only a shared memory machines, using one node, possible data placement problem and no specific thread order.
+
+
+Figure 3 A hybrid computing model of OpenMPI & OpenMP
+      Due to the advantages and disadvantages of using OpenMPI or OpenMP respectivley, the hybrid computing model consisting of OpenMP and OpenMPI together is proposed to take their advantages. Figure 3 depicts an architecture of this hybrid model. In this model, OpenMP is used with node and OpenMPI is adopted between nodes. Hence, additional communication with the OpenMPI nodes can be avoided and the feature of multi-core and directive-based OpenMP can be used at most. In the aspect of memory usage, smaller number of OpenMPI processes are needed so that memory is saved for the executables and process stack copies.
+      In this model, the programming model begins with a startup OpenMPI function and tear down with OpenMPI function as well. Between those two functions, the OpenMP code is embedded inside this region. Therefore, the multi-core nodes are connected by a high-speed network so that shared memory model and distributed memory model are combined. 
+3.2 GPU using OpenACC Computing Model
+      OpenACC developed by the PGI and NVIDIA is an emerging computing model that applies GPU for accelerating the speed of computation. Similar to OpenMP, the OpenACC Application Programming Interface (API) [8] provides a set of compiler directives, library routines, and environment variables that can be used to program parallel application in the GPU with multiple languages such as Fortran, C and C++. OpenACC is a high-level programming model and an extension to the host languages. The user just needs to add OpenACC directives at the function headers to implement the original sequential codes in parallel model.
+
+Figure 4. A computing model of OpenACC-based GPU
+      	The programming model using OpenACC is shown in Figure 4. The abstraction level of this model is transferring data between the host (CPU) and the device (GPU). For the aspect of execution, three levels of parallelism are supported in a typical accelerator. Multiple execution units (gang) are at the outermost coarse-grain level. Multiple threads (worker) within each execution unit are at the middle fine-grain level. At the innermost level, each thread runs in vector parallelism (vector). All the codes embraced with a parallel region or a kernel region are the parallel execution parts, which are created and launched on the accelerator device. Similarly, the fork-join model is used for the kernel execution. For the aspect of memory, there are no interactions between the host memory and the device memory. It is designed as the two memories are independent and only can be accessed by each other through transferring the data by using the provided functions. In the case of this designation, The OpenACC programming model can support a wide range of GPU-based accelerator devices. The OpenACC provides the tasks of memory allocation, copying, and de-allocation automatically, but the CUDA does not yet. 
+
+4. ALGORITHM MODEL
+    In this section, we introduce algorithm models for solving the longest common subsequence problem. This introduces Bruce-Force, recursive, bit-vector, and dynamic programming algorithms in sequential and its parallel anti-diagonal algorithm for handling LCS problem. 
+4.1 Brute-Force Algorithm
+    Brute Force is a class of algorithm were developed to solve a program in the most straightforward way based on the statement of the problem and the definitions provided directly. This algorithm is considerable for its simplicity and applicable to different kinds of problem. However, it lacks proficiency in some case and is useful only for instances of same size. In Brute Force [22], we usually need to implement four stages: (1) generate the first solution s; (2) generate the next solution after the current s; (3) check whether s is the desired solution; (4) choose s as the correct solution.
+    Algorithm 1 shows the approach of Brute-Force algorithm to solve the LCS.
+Algorithm 1: LCS_LENGTH_BF(X, Y)
+1. m?X.length
+2. n ? Y.length
+3. list all subsequences of X[1...m]
+4.    check each candidate in the sequence Y[1...n]
+5. return LCS and its length
+
+    Based on the Algorithm 1, we can see it is straightforward to propose this solution directly. However, it takes O(n) time for checking per subsequence in sequence Y. In addition, there are 2^m subsequences of sequence X when we list all its possibilities. Therefore, the running time of Algorithm 1 is O(n*2^^ m). 
+
+4.2 Recursive Algorithm
+    Although the Brute-Force algorithm is considerably easy to program, it is not efficient enough to solve LCS problem when the size of two sequence becomes large. It is obvious that we will not choose the algorithm in exponential time to deal with this problem. Observed the structures of the problem and the inefficient algorithm, recursive algorithm is proposed to solve LCS problem.
+    Recursive algorithm is a type of algorithm used for solving those kinds of problems exposed to call recurrence itself. The advantages of this algorithm are to simplify programming and reduce the corresponding time to execute repeated work. In recursive algorithm, two procedures usually need to be implemented: (1) define a simple base case for terminating the recursion; (2) formulate the recursive rules.
+    Algorithm 2 shows the approach of recursive algorithm to solve the LCS more efficient through finding the length of the longest subsequence instead of finding the subsequence itself.
+Algorithm 2: LCS_LENGTH_R(X, Y, i, j)
+1. m?X.length
+2. n ? Y.length
+3. if i = m or j = n
+4.     then return 0
+5. end if
+6. else if X[i] = Y[j]
+7.      then return 1 + LCS_LENGTH_R(X, Y, i+1, j+1)
+8. end if
+9. else return max (LCS_LENGTH_R(X, Y, i+1, j), LCS_LENGTH_R(X, Y, i, j+1))
+    
+    Based on the Algorithm 2, we can simply improve the efficiency by finding the recurrence parts of this problem. In the worst-case that there are no matching characters of those two sequences, therefore, the line 10 will be executed every time. Hence, the time complexity is O(2^^ n) in the worst case. 
+4.3 Bit-vector Algorithm
+    Bit-vector algorithm is proposed for solving LCS problem by taking the advantages of the architecture of the machine, which can pack the data in chunk of word bits based on the computers. Allison and Dix [33] initially proposed this algorithm in their paper with time complexity O(?m/w?*n), where w represents the computer word size and m,n denotes the length of each string. It uses bit operations on bit-vector sequences to find the longest length of the LCS so that time complexity is reduced by increase the size of word bits in machine.
+    Before discussing this algorithm in detail, we define some important bitwise operations used here:
+    AND (&): A AND operation returns 1 when the compared two bits both are 1. Otherwise, returns 0.
+    OR (|): A OR operation returns 0 when the compared two bits both are 0. Otherwise, returns 1.
+    XOR (^): A XOR operation returns 1 when the compared two bits are different. Otherwise, return 0.
+    Left-Shift (<<): A Left-Shift operation shifts the whole bit to the left in some values, and discards the corresponding left most bits, then inserts the replaced bits in the right most bits. 
+    In the bit-vector algorithm, we precomputed matching data for the query string. Table 3 gives an example of calculating each symbol in the alphabet for the given query string "ACBCBAB". We denote each symbol to be matched as M_s. Hence, M_b represents the matched result of B-String. 
+    
+
+A
+C
+B
+C
+B
+A
+B
+
+B-String
+0
+0
+1
+0
+1
+0
+1
+A-String
+1
+0
+0
+0
+0
+1
+0
+C-String
+0
+1
+0
+1
+0
+0
+0
+Table 3 Precomputed matching data for the query string "ACBCBAB"
+    
+    Table 4 demonstrates the result of calculating the LCS. Observed this table, we can know the order of checking column sequence is from the end to the beginning, that means the column sequence BABCACB will be checking in the reversing order with BCACBAB. In addition, there is formula of operations are provided [33] by Allison and Dix for getting the result of each row. 
+         X=?Row?_(i-1) | M_s
+    ?Row?_i=  X & (?(X-(?Row?_(i-1) 1))  ?^^ X)                                                               (1)
+    For equation (1), ?Row?_(i-1) 1 represents left-shift one bit of the ?Row?_(i-1) and insert the 1 always in the right most empty slot. For instance, ?Row?_1 1=0000001 1=0000011. What's more, ?Row?_0 are filled with all zeros. 
+
+5 
+1
+0
+1
+0
+1
+1
+1
+B
+y7
+5 
+1
+0
+1
+0
+1
+1
+1
+A
+y6
+4 
+0
+0
+1
+0
+1
+1
+1
+B
+y5
+3 
+0
+0
+0
+1
+0
+1
+1
+C
+y4
+3 
+1
+0
+0
+0
+0
+1
+1
+A
+y3
+2 
+0
+0
+0
+1
+0
+0
+1
+C
+y2
+1 
+0
+0
+0
+0
+0
+0
+1
+B
+y1
+# bits
+A
+C
+B
+C
+B
+A
+B
+
+
+
+x1
+x2
+x3
+x4
+x5
+x6
+x7
+
+
+Table 4 Result of calculating LCS in bit-vector operation
+    Based on the equation (1), we can calculate the? Row?_3 by using ?Row?_2 and M_a.
+    ?        M?_a:    1	0	0	0	0	1	0
+    ?    Row?_2:    0	0	0	1	0	0	1     
+                   X:    1         0          0          1          0          1          1    OR
+                      0         0          1          0          0          1          1     << 1
+                      0         1          1          1          0          0          0     -
+                      1         1          1          0          0          1          1    XOR
+         ?Row?_3:  1         0          0          0          0          1          1    AND
+
+    In this case of calculation, we fill up bits in each row from bottom to the top. After calculating all bits for every row, the number of 1's in the top row is the length of LCS. In addition, we can retrieve the longest common subsequence through finding the changed bit in the highest place of each column. We can know that the order of finding a common character in each column is from left to right. What's more, the index of x for the next common character should be greater than the previous one. In our example, we found y6 is the changed bit in the highest place of the first column. Then there is a qualified common character in y6. When we continue to do some operations, we can get the longest common subsequence is ABCAB, and the length of LCS is the number of 1's in the top row is 5.
+4.4 Dynamic Algorithm
+    Dynamic programming (DP) is a class of algorithm was developed to solve sequential or multi-stage decision problems. Dynamic programming decomposes the large and hard problems into some equivalently smaller instances to solve. In DP, we frequently need four stages [22] to accomplish a program: (1) characterize the structure of an optimal solution; (2) recursively define the value of an optimal solution; (3) compute the value of an optimal solution, typically in a bottom-up fashion; (4) construct an optimal solution from computed information. 
+    Observed the recursive formula, we find the memorization of finished solutions in previous steps can be used for improving the efficiency. It is the feature of dynamic programming. The approach of dynamic programming for solving LCS problem through building a score matrix, tracing-back to find the longest common subsequence, then getting the length of LCS from the best score. In this approach, we firstly find an LCS of two given sequences contains prefixes of an LCS of the two input sequences. From it, an optimal solution is found. Then, we build a recursive solution for it. Then, we build a recursive solution for it. Here, let c[i,j] as the length of an LCS of the sequences X_i and Y_j. Equation 2 shows the recursive formula as following:
+    c[i,j]={ (0,                                                        &if i or j=0@c[i-1,j-1]+1,                        if i,j>0 and x_i=y_i@max?(c[i-1,j],c[i,j-1],         &if i,j>0 and x_i?y_i )                           (2)
+    
+    Based on the above equation (2), we can compute the length of an LCS. Specifically, if i=0  or j=0, at least one of the sequence X_i and Y_j  is empty, so the length of common sequences is 0. If x_i=y_i we can extend the length of the longest common subsequence of X_i and Y_j  is c[i-1,j-1] by add 1. If x_i?y_i, then we can extend the length of the longest common subsequence of X_i and Y_j   is c[i-1,j] or c[i,j-1]. In addition, Algorithm 3 shows the pseudocode of finding an LCS by using recursive formula. This serial solution for solving LCS problem by using dynamic programming approach with two nested for loop. Therefore, the serial DP algorithm runs in O(mn) time, where m and n are the length of two input sequences.
+Algorithm 3: LCS_LENGTH_DP(X, Y)
+10. m?X.length
+11. n ? Y.length
+12. generate initial arrow table b[1...m,1...n]
+13. generate initial length table c[0...m,0...n]
+14. for i ?1,m do
+15.      c[i, 0]? 0
+16. end for
+17. for j ?0, n do
+18.     c[j, 0] ?0
+19. end for
+20. for i ?1,m do
+21.       for j ?1, n do 
+22.            c[i,j]={ (c[i-1,j-1]+1,                                if x_i=y_i@max?(c[i-1,j],c[i,j-1]),              if x_i?y_i  ) 
+23.           b[i,j]={ ("\" ?\"",                            if c[i,j]=c[i-1,j-1]+1@"\" ? \"" ,                                           if c[i,j]=c[i-1,j]@"\" ? \"",                                          if c[i,j]=c[i,j-1]) 
+24.        end for
+25. end for
+26. return c and b
+
+    Through the Algorithm 3, we also can build a score matrix row by row. Here, we base on the case: those two sequences are X=(B, A, B, C, A, D, B), and Y=(A, C, B, C, B, A,B). Table 5 demonstrates the table of score matrix of sequence X and Y. After building this score matrix for c[i,j] and b[i,j]. We can clearly get the length of the longest common subsequence from the highest score of score matrix. For this case, the length of the LCS is 5. In addition, the longest common subsequence can be found easily by tracing-back the score matrix. When tracing-back the score matrix, we read from the last row and c, skip the "?"  and ?" " sign.  A cell of the table can be viewed as an element of an LCS when we encounter the "? " sign during the trace-back operation. In this Table 5, all of elements of the LCS are colored with yellow. Based on the Algorithm 3, A longest common subsequence can be found, which is (A,B, C, A, B). 
+
+j
+0
+1
+2
+3
+4
+5
+6
+7
+i
+
+y
+A
+C
+B
+C
+B
+A
+B
+0
+x
+0
+0
+0
+0
+0
+0
+0
+0
+1
+B
+0
+"?" 0
+"?" 0
+"?1" 
+"?1" 
+"?1" 
+"?1" 
+"?1" 
+2
+A
+0
+"?1" 
+"?1" 
+"?1" 
+"?1" 
+"?1" 
+"?2" 
+"?2" 
+3
+B
+0
+"?1" 
+"?1" 
+"?2" 
+"?2" 
+"?2" 
+"?2" 
+"?3" 
+4
+C
+0
+"?1" 
+"?2" 
+"?2" 
+"?3" 
+"?3" 
+"?3" 
+"?3" 
+5
+A
+0
+"?1" 
+"?2" 
+"?2" 
+"?3" 
+"?3" 
+"?4" 
+"?4" 
+6
+C
+0
+"?1" 
+"?2" 
+"?2" 
+"?3" 
+"?3" 
+"?4" 
+"?4" 
+7
+B
+0
+"?1" 
+"?2" 
+"?3" 
+"?3" 
+"?4" 
+"?4" 
+"?5" 
+Table 5 The table of score matrix
+4.5 Anti-diagonal Algorithm in Parallel
+    In the serial dynamic programming for solving LCS problem shown above, there are some disadvantages. We execute the algorithm row by row from left to right. In detail, we begin with the cell c[1, 1], then c[1, 2],...,c[1,n],...,until the cell c[m, n]. For this serial DP algorithm, it doesn't take advantages of the relationship among those cells to achieve the better performance.
+    we can improve this serial dynamic programming approach in parallel. From the above equation (2), for each c[i,j], it depends on three entries that are c[i-1, j-1] , c[i, j-1], and c[i-1, j]. In general, for computing cell c[i, j], we need to know those three cells, c[i-1, j-1], c[i-1, j], and c[i, j-1]. More specifically, as shown in Figure 5, each cell c[i, j] depends on the cell in the same row and the same column. Therefore, the cell in the same row or column cannot be computed in parallel.
+    
+Figure 5 The dependency of cells in DP approach
+
+Figure 6 Anti-diagonal approach in parallel
+    
+    Based on the dependency of cells in dynamic programming approach, computing the cell in anti-diagonal way was proposed to gain parallel computation for solving LCS problem. Figure 6 gives a general visualization of dynamic approach in parallel. Here, it utilizes the independence of anti-diagonal cells so that changes the order of computations for cells. We start calculating the cell c[1,1], after finish it, we can compute c[1, 2] and c[2,1] at the same time. When finish computing c[1, 2] and c[2,1], we can calculate c[1, 3] , c[2, 2] and c[3,1] at the same time. We compute all of cells in this way until fill the whole score matrix. Therefore, computing the cell in the anti-diagonal direction can achieve the goal of solving LCS problem by using dynamic programming approach in parallel.
+
+
+5. IMPLEMENTATION
+    In this section, we introduce several implementations based on the anti-diagonal algorithm for solving the longest common subsequence problem in parallel. This introduces multi-CPUs programming implementations including OpenMPI, OpenMP, OpenMPI & OpenMP-based hybrid, and OpenACC-based GPU. We will first provide a skeleton of each programming style. Then we will present every detail implementation of anti-diagonal algorithm for LCS. 
+5.1 Multi-CPUs Programming Implementations
+5.1.1 OpenMPI Implementation
+    As discussed in the Chapter 3, the skeleton of OpenMPI program can be demonstrated in Figure 7. The parallel code is embraced by MPI_Init() and MPI_Finalize().
+    
+Figure 7 A skeleton of OpenMPI program
+	The parallel implementation of OpenMPI for anti-diagonal algorithm has three main parts for programming. The first one is to broadcast the one sequence to all nodes. The second part is to scatter another sequence to all nodes. The last one is to send/receive the completed part to other nodes. Once the data is scatted to all nodes, each node will just calculate a piece of the data instead of running the entire data in every node. In addition, the fact of send/receive is used for tracking the order of jobs on each node. Inside send/receive, dynamic programming approach in anti-diagonal direction is applied for accelerating the speed of computation in parallel.  Based on the design, the LCS problem is solved in parallel among those nodes connected by LAN illustrated in Figure 7. The detail of implementation is listed in the Implementation 1.
+	Implementation 1 gives the pseudocode of MPI for LCS problem in parallel.
+Implementation 1: LCS_MPI(X, Y)
+1. m?X.length
+2. n ? Y.length
+3. generate initial length table c[0...m,0...n]
+4. MPI_Init(...)
+5. broadcast Y to each node
+6. scatter X to all nodes
+7. for diag ?2, m+n do
+8.     if pID != 0 & diag-1 <= n
+9.         then MPI_Recv(c[0][diag-1],..., pID-1,...) 
+10.     end if 
+11.     for i ? max(1, diag-n), min(m, diag-1)
+12.         j ?diag - i
+13.         c[i,j]={ (c[i-1,j-1]+1,                                if X_(i-1)=Y_(i-1)@max?(c[i-1,j],c[i,j-1]),              if X_(i-1)?Y_(i-1)  ) 
+14.     end for
+15.      if pID != #proceesor & diag > m
+16.         then MPI_Send(c[m][diag-m],..., pID+1,...)
+17.      end if 
+18. end for
+19. MPI_Finalize(...)
+20. return c 
+
+    In our MPI program, broadcast is a technique, which sends some copy to all the nodes in the connected network. Figure 8 illustrates the example of broadcast. When the master node send the data A to other nodes, each one will receive this data A as its own copy. In addition, scatter is a technique, which splits the own data into small pieces in number of nodes copies, then send each part to other nodes. An example of scatter is shown in the right of Figure 8. The data ABC of master node is split into A, B, C three parts, and send each part to each node.
+    
+Figure 8 An example of broadcast (left) and scatter (right)
+5.1.2 OpenMP Implementation
+    As discussed in the Chapter 3, the skeleton of OpenMP program can be illustrated in Figure 9. The parallel parts are indicated with #pragma omp parallel directive. The detail of implementation is listed in the Implementation 2.
+    
+Figure 9 A skeleton of OpenMP program
+    The primary way to parallelize our algorithm in OpenMP is make for loop in parallel. As we can see, the initialization of two-dimension array is paralleled by using provided directives. The main part of our algorithm is from line 12. We can notice that some features of directives are added for our parallel for-loop. In OpenMP, we need to consider the shared and private variables carefully. Due to threads are used for achieving parallelization in OpenMP demonstrated in Figure 9, the code sequences are shared to all anti-diagonal, however, the index of each array of LCS is private to all threads running in anti-diagonal direction. Therefore, we should make sure no other threads can change the current own results to make our results mixed. 
+    
+    
+    Implementation 2 gives the pseudocode of OpenMP for LCS problem in parallel.
+Implementation 2: LCS_MP(X, Y)
+1. m?X.length
+2. n ? Y.length
+3. generate initial length table c[0...m,0...n]
+4. #pragma omp parallel for
+5. for i ? 0, m do
+6.     c[i][0]? 0
+7. end for
+8. #pragma omp parallel for
+9. for j ? 1,n do
+10.     c[0][j]? 0
+11. end for
+12. #pragma omp parallel   default (none)\ \ \
+  shared(X,Y,c,m,n)  \
+private(i, j, diag) \
+            num_threads(#threads)
+13. for diag ?2, m+n do
+14.     #pragma omp for
+15.     for i ? min(m, diag-1), max(1, diag-n) do
+16.         j ?diag - i
+17.         c[i,j]={ (c[i-1,j-1]+1,                                if X_(i-1)=Y_(i-1)@max?(c[i-1,j],c[i,j-1]),              if X_(i-1)?Y_(i-1)  ) 
+18.     end for
+19. end for
+20. return c 
+
+    Similar to MPI, our anti-diagonal algorithm is running on each thread or CPU to make our dynamic approach in parallel. Observed the Implementation 2 of OpenMP, we can notice that the changes from serial codes are minor and the main tasks to achieve parallelization are adding the corresponding directives for each part exposed that can be parallel.    
+5.1.3 OpenMPI & OpenMP-based Hybrid Implementation
+    As discussed in the Chapter 3, the skeleton of OpenMPI & OpenMP-based hybrid program can be depicted in Figure 10. The detail of implementation is listed in the Implementation 3.
+
+Figure 10 A skeleton of OpenMPI & OpenMP-based hybrid program
+    Combined the scalability of MPI and easy programming of OpenMP, we used the hybrid implementation demonstrated in Figure 10. We notice that the code of OpenMP is embedded into OpenMPI. MPI is used for distributing our data to each node across the network, then OpenMP is used for parallelizing our algorithm to run those data by using the features of multi-core inside each node. Similar to Implementation 1 and 2, Implementation 3 combines the both advantages, which need to change the code from Implementation 1 is at line 27, we add OpenMP directives to make each anti-diagonal algorithm running in parallel in each node. There are no vast changes from MPI implementation for the remaining part of codes. We also use broadcast ad scatter to distribute our input data to each node in three machines, and send/receive to each local LCS for future using. Rather than executing our anti-diagonal algorithm sequentially in MPI, we can utilize the OpenMP to achieve the parallelization.
+    As observed the line 27 to 40, we can see that it is easy to deploy our code in this hybrid style if we can implement our algorithm in MPI and OpenMP separately. However, we don't need consider the variables in shared or private in this case, for each part of running thread is independent from other nodes and can communicate by using send/receive in distributed-memory model. Implementation 3 gives the pseudocode of OpenMPI & OpenMP-based hybrid program for LCS problem in parallel.
+Implementation 3: LCS_MPI_MP(X, Y)
+21. m?X.length
+22. n ? Y.length
+23. generate initial length table c[0...m,0...n]
+24. MPI_Init(...)
+25. broadcast Y to each node
+26. scatter X to all nodes
+27. #pragma omp parallel
+28. for diag ?2, m+n do
+29.     if pID != 0 & diag-1 <= n
+30.         then MPI_Recv(c[0][diag-1],..., pID-1,...) 
+31.     end if 
+32.     #pragma omp for
+33.     for i ? max(1, diag-n), min(m, diag-1)
+34.         j ?diag - i
+35.         c[i,j]={ (c[i-1,j-1]+1,                                if X_(i-1)=Y_(i-1)@max?(c[i-1,j],c[i,j-1]),              if X_(i-1)?Y_(i-1)  ) 
+36.     end for
+37.      if pID != #proceesor & diag > m
+38.         then MPI_Send(c[m][diag-m],..., pID+1,...)
+39.      end if 
+40. end for
+41. MPI_Finalize(...)
+42. return c 
+
+5.2 GPU using OpenACC Programming Implementation
+    As discussed in the Chapter 3, the skeleton of OpenACC program can be drawn in Figure 10. The detail of implementation is listed in the Implementation 4.
+    
+Figure 11 A skeleton of OpenACC program
+    Similar to OpenMP, the primary method to make our algorithm in parallel through OpenACC is finding for loops that can be parallel. The flow of our OpenACC, illustrated in Figure 11, begins in the CPU, then accelerates the algorithm on GPU, finally shows the result. Unlike OpenMP, there are some operations of copy-in and copy-out for data needed to finish in our computations in OpenACC. 
+    After identifying the parallelization of our algorithm, the design of our algorithm based on the OpenACC can be divided into following steps: 1) Allocate memory for string A, B, and C in host; 2) Copy in A, B to device; 3) Copy out C to device; 4) Apply parallel for-loop on anti-diagonal algorithm, C is shared between A and B, make C private 4) Print the length of C, that's the length of LCS.
+          Observed the Implementation 4, line 24 to line 40 are our main parts for using OpenACC to accelerate our algorithm. The code in this implementation is almost identical to the sequential version, except for the lines with #pragma directives. The #pragma at each line tells the compiler to generate the code for the loop in parallel on the accelerator. The copy-in clause and the copy-out clause specify how the data should be transferred between the host and the device. In this implementation, we use kernels construct to specify the part of the program to be executed on the accelerator, and the loop construct is used inside a kernels construct. For this case, a kernels region is broken into a set of kernels, each of which can be executed on the device. Each loop in the kernels construct may become a kernel to be executed in parallel. By using kernels construct in OpenACC, the compiler is responsible for mapping and petitioning our program to the underlying accelerator.  
+    Implementation 4 gives the pseudocode of OpenACC for LCS problem in parallel.
+Implementation 4: LCS_ACC(X, Y)
+21. m?X.length
+22. n ? Y.length
+23. generate initial length table c[0...m,0...n]
+24. #pragma acc data copyin(X[0:m], Y[0:n]) copy(c[0:(m+1)][0:(n+1)])
+25. #pragma acc kernels present(x[0:len_x],y[0:len_y],LCS[0:c_lenx][0:c_leny]) 
+26. #pragma acc loop
+27. for i ? 0, m do
+28.     c[i][0]? 0
+29. end for
+30. #pragma acc loop
+31. for j ? 1,n do
+32.     c[0][j]? 0
+33. end for
+34. #pragma acc loop collapse(2)  private(c[0,m][0,n])   
+35. for diag ?2, m+n do
+36.     for i ? min(m, diag-1), max(1, diag-n) do
+37.         j ?diag - i
+38.         c[i,j]={ (c[i-1,j-1]+1,                                if X_(i-1)=Y_(i-1)@max?(c[i-1,j],c[i,j-1]),              if X_(i-1)?Y_(i-1)  ) 
+39.     end for
+40. end for
+41. return c 
+    
+
+6. EVALUATION
+    In this section, we evaluate the performance of anti-diagonal algorithm in parallel for LCS problem by using a variety of implementations including OpenMPI, OpenMP, OpenMPI & OpenMP-based hybrid, and OpenACC-based GPU. The experiments are comprised of two parts: 1) We benchmark each implementation; 2) We present the comparison between those implementations. 
+6.1 Dataset and Experimental Setup
+    We use Ubuntu 14.04 LTS 64-bits version to install all development environments and perform our experiments. We use two types of machine for experiments: for CPU experiments, we use Dell OptiPlex 7010 and for GPU experiment we use Dell Precision T3500 in experiments. The cluster of three machines is connected by 100Mpbs LAN. Hardware configurations of those two types of machine are listed in Table 6, 7 and the detail workstation setup is described in APPENDIX A.
+Processor
+Intel Core i7-3770 CPU @ 3.40 GHz * 8
+Memory
+7.7 GiB
+Graphics
+Intel Ivybridge Desktop
+Disk
+976.0 GB
+Table 6 Hardware configuration of CPU
+Processor
+Intel Xeon (r) CPU w3530 @ 2.80 GHz * 4
+Memory
+5.8 GiB
+Graphics
+Gallium 0.4 on llvmpipe
+Disk
+485.8 GB
+NVIDIA Type
+Tesla K40c
+CUDA Cores
+2880
+CUDA Total Memory
+11520 MB
+Bus Type	
+PCI Express x16 Gen2
+Table 7 Hardware configuration of GPU
+    We used the protein sequences from Swiss-Prot [41] database (release 2017_03) as testing input. After preprocessing this database, the total number of characters is 198,177,566. Based on it, we randomly generate 15 sets of data and the length of those generated sequences includes 10,000, 15,000, 20,000, 25,000, 30,000, 35,000, 40,000, 45,000, 50,000, 55,000, 60,000, 65,000, 70,000, 75, 000 and 80, 000. We ran each of implementations 10 times on each of sequences. Therefore, our final evaluations were averaged on 10 trails for each sequence. 
+    In our evaluations, two metrics are used for measuring the performance over different cases of configurations. Two formulas are applied for measuring metrics are the speed-up and speed-ratio. The Speed-up is a metric we use to evaluate the impact, which is measured based upon the algorithms running times between a variety of multi-core and a single-core algorithm systems. The Speed ratio is another metric we use to measure the impact that the OpenACC implementation has towards other three implementations on maximum cores of the machine as Tables 6.
+         SpeedUp =  T_(1 core)/T_(multi-core)       		                                           (3)                                                                                       
+                              SpeedRatio=  T_(8 cores)/T_OpenAcc                                                                    (4)
+    	As formula (3), we use T denote the execution time of our algorithm,? T?_(1 core) stands for the execution time on single core, that can be measured as sequential performance over our algorithm. ? T?_(multi-core) represents for the execution time on multi-CPUs and OpenACC. Compared with SpeedUp metric, formula (4) measures speed ratio of running time of the algorithm on three maximum multi-CPUs to running time of the algorithm over OpenACC on GPU.
+6.2 OpenMPI Experiments
+    For MPI experiments, we choose three machines configured as Table 6 for testing our anti-diagonal algorithm.  After created this MPI cluster, we tested this implementation over different number of CPUs, which comprises of 1, 2, 4, 6, 8. Figure 12 depicts the execution time of MPI and OpenACC. Based on the results, we can see that our algorithm running on the multi-core is much faster than single core. In addition, for the single core case, the running time increases a lot each time when we increase the number of sequence. This can be explained that the time complexity of the algorithm in serial is O(n^2 ), where n is the length of input sequence. 
+    What's more, we can know that the decreased time over 6 and 8 cores are less than the 2 and 4 cores. This case can be explained that the transmission of data to many nodes affects the efficiency of our algorithm.  Besides, the execution time over 6 and 8 cores tend to slightly close after the sequence increases to 60,000. We can explain this case through increasing the number of cores from 6 to 8 cores cannot improve the efficiency of our algorithm too much. 
+    Observed the OpenACC, we can know that the running time from 10,000 to 45,000 is close to 8 cores since the length of sequence cannot achieve the optimal efficiency for OpenACC. OpenACC can reduce the execution time a lot when we give a certain number of sequence, for too many operations of copy-in and copy-out for data inside OpenACC take the time. However, we can see that OpenACC is much faster after the length of sequence increases to 50,000.
+    Figure 13 demonstrates the speed-up of multi-core and OpenACC over single core in MPI. The measured speed-up for the implementation of our algorithm in MPI with maximum cores is bounded at 7.8 times. Because of the limited number of CPUs, the speed up cannot achieve 8 times. The implementation of our algorithms in OpenACC outperforms the implementation in each case of CPU. Our experiments show that the execution time of our algorithm in OpenACC (on GPU) is 16 times faster than the one on single CPU for long sequences in MPI. 
+    
+
+Figure 12 The LCS execution time of MPI and OpenACC
+
+
+Figure 13 Speed UP of MPI and OpenACC 
+6.3 OpenMP Experiments
+    For OpenMP experiments, we pick one machine configured as Table 6 for testing our anti-diagonal algorithm. The set of CPU cores (1, 2, 4, 6, 8) are applied for testing our algorithm. 
+    Figure 14 illustrates the execution time of our algorithm versus the different cores in OpenMP and the OpenACC. We can clearly see that for the single core implementation of our algorithm, whenever the we increase the length of the sequence the running time exponentially increases. This case can be explained that this implementation lacks the ability to run our algorithm in parallel. Both 2, 4, 6, and 8-core implementations of our algorithms use the parallelization approach discussed in section 4.5. The increased time of those 4 versions of our algorithm tends to linear as we increase the size of the compared sequence. After increases the length of sequence to 50,000, we notice that the OpenACC can run much fast than any number of CPU cores. In addition, OpenACC is the best algorithm to execute our algorithm in parallel versus any versions of CPU cores. For short sequences, there are no much differences of the execution time for our algorithm. 
+    Figure 15 shows the speed up of the implementation versions of our algorithms in multi-core using OpenMP and OpenACC over single core in varied sizes of the two sequences. Similar to MPI, the speed up of the implementation in OpenMP is bounded by the number of CPU cores. In addition, our results show that the execution time of our algorithm in OpenACC is around 16 times faster than the one in single core CPU.  
+    
+
+Figure 14 The LCS execution time of OpenMP and OpenACC
+
+
+Figure 15 Speed UP of OpenMP and OpenACC
+
+
+6.4 OpenMPI & OpenMP-based Hybrid Experiments
+    For OpenMPI & OpenMP-based hybrid experiments, we ran three machines configured as Table 6 for testing our anti-diagonal algorithm. Used the cluster, we test a set of CPU cores (1, 2, 4, 6, 8) for our algorithm. Figure 16 demonstrates the execution time of our algorithm versus the different cores in the OpenMPI & OpenMP hybrid implementation and the OpenACC. Similar to OpenMP, the execution time tends to exponential over the size of sequences in single core since the absence of parallelization in this implementation. We can clearly see that for the multi-core implementation of our algorithm, whenever the we increase the length of the sequence the running time linearly increases. This case can be explained that those implementation in 2, 4, 6 and 8 cores use the parallelization approach presented in section 4.5.
+    Overall, we notice that the fastest version of our algorithm is OpenACC one compared with other versions in OpenMPI & OpenMP-based hybrid implementations. Specially, it is also much faster than the 8-core implementation in CPUs. The efficiency of our algorithm running in OpenACC improves as we increased the size of sequence especially for long sequences. As OpenACC is the library developed by NIVIDIA with more than 2,000 cores, it can achieve more efficient for our parallel algorithms. 
+    Figure 17 illustrates the speed up of the implementation of our algorithms in multi-core using OpenMPI & OpenMP and OpenACC over single core as we increase the size of the two sequences.  For the CPUs version, the maximum speed up for the implementation of our algorithms is bounded at around 8 times. In fact, it cannot up to 8 times since the configurations of the CPUs are 8 cores. The OpenACC implementation is around 16 times faster than the one in single core. This result can be explained by the OpenACC architecture and its cores. What's more, we can clearly see that the implementation of our algorithm running on OpenACC is the best version compared to other versions running on CPUs.
+
+Figure 16 The LCS execution time of MPI+OpenMP and OpenACC
+
+
+Figure 17 Speed UP of MPI+OpenMP and OpenACC
+
+6.5  OpenACC Experiments
+    For OpenACC experiments, we choose one machine with NVIDIA Tesla configured as Table 7 for testing our anti-diagonal algorithm. In this comparison, we pick implementations of our algorithm with 8 cores to see the differences between CPU in varied versions and GPU in OpenACC. Figure 18 shows the execution time of our algorithm for running LCS problem. As we can see, the OpenACC outperforms the MPI, OpenMP and MPI & OpenMP versions.  In addition, there no visible differences among those implementations in CPUs. We cannot clearly see which implementation in CPUs is the best or better than the other. 
+    Figure 19 demonstrates the speed ratio of OpenACC to other implementations in CPUs. In this experiment, the speed ratio shows to what extent a parallel algorithm is faster than other implementations. The execution time of serial implementation is averaged by three version. We can see that the results of our parallel algorithm in OpenACC (on GPU) is around 16 times faster than the one in serial on CPU, and 2 times faster than the one in parallel on 8 CPUs. What's more, from our experimental results in Figure 19, it is hard to judge which algorithm on CPUs is better than the other in parallel. Overall, the OpenACC is the best version for implementing our parallel algorithm than other version on CPUs. 
+    
+    
+    
+
+
+
+Figure 18 The LCS execution time
+
+
+Figure 19 The speed ratio of OpenACC to other implementations
+
+
+7. CONCLUSION
+    In this thesis, we proposed a directive-based OpenACC parallel programming model to solve the LCS problem. We focused on the algorithm model of our LCS problem in anti-diagonal in parallel based on the existing dynamic approach. For this purpose, we discussed four developments of our anti-diagonal by using OpeMPI, OpenMP, OpenMPI & OpenMP-based hybrid and OpenACC implementations that performs out algorithms in parallel with multi-core CPUs and GPU. Finally, we have evaluated our proposed algorithm using speed-up and speed-ratio over execution time metrics to measure the performance of each algorithm. After comparing all experiments, the results show that the implementation of our algorithm in OpenACC (on GPU) is around 16 times faster than the one in serial on CPU, and around 2 times faster than the one in multi-core on 8 CPUs. The efficiency of implementations in CPUs is bounded by the number of CPU cores. What's more, the OpenACC to solve the LCS problem is the best version of implementations compared to other versions. 
+7.1 Future Work
+    OpenACC provides a solution for solving longest common sequence problem on demand in optimal time. However, the frequent transmission of data between the host and the device affects the efficiency of running our algorithm. Due to the limitation of GPU, we implemented our algorithm with single GPU in this thesis. We see that the performance would achieve better if we have more than one GPU combined by MPI cluster. In this case, the huge amount of data can be distributed to other nodes in each small part by using MPI, then OpenACC is responsible for handling our algorithm with received number of data in parallel. Finally, each local LCS can be joined together by MPI for eventual use.  Through this design, we utilize the scalability of MPI to reduce the task of transferring data in OpenACC, and the efficiency of OpenACC to accelerate the algorithm in each node among our MPI cluster. 
+
+
+APPENDIX A. WORKSTATION CONFIGURATION
+    This workstation is configured in Ubuntu 14.04 LTS 64-bits version. The version of gcc is gcc (Ubuntu 4.8.4-2ubuntu1~14.04.3) 4.8.4, and the version of g++ is g++ (Ubuntu 4.8.4-2ubuntu1~14.04.3) 4.8.4. 
+A.1 OpenMPI Setup
+zuqingli@ubuntu:/$ sudo apt-get install libopenmpi-dev
+zuqingli@ubuntu:/$ sudo apt-get install openmpi-bin
+zuqingli@ubuntu:/$ mpicc xxx.c # run .c file with mpicc
+zuqingli@ubuntu:/$ time mpirun -np #nums ./a.out # nums represents run number of nodes to be used with mpirun
+A.2 MPI Cluster Setup
+1) Change network configuration
+zuqingli@ubuntu:/$ vim /etc/network/interfaces
+# interfaces(5) file used by ifup(8) and ifdown(8)
+auto lo
+iface lo inet loopback
+# The primary network interface
+auto eth0
+iface eth0 inet static
+    address 192.168.0.10 # set up 192.168.0.10|20|30 for machine
+    netmask 255.255.255.0
+    network 192.168.0.0
+    broadcast 192.168.0.255
+    gateway 192.168.0.1
+2) Change hostname
+zuqingli@ubuntu:/$ vim /etc/hostname
+stc369a #change ubuntu to stc369a|b|c for each machine
+3) Set up hosts file for cluster
+zuqingli@ubuntu:/$ vim /etc/hosts
+127.0.0.1		localhost
+192.168.0.10	stc369a
+192.168.0.20	stc369b
+192.168.0.30	stc369c
+4) Set up SSH
+zuqingli@stc369a:/$ sudo apt-get install openssh-server # install ssh
+zuqingli@stc369a:/$ ssh-keygen -t dsa # generate key
+zuqingli@stc369a:/$ ssh-copy-id stc369b # copy the key to stc369b|c
+zuqingli@stc369a:/$ eval 'ssh-agent' 
+zuqingli@stc369a:/$ ssh-add ~/.ssh/id_dsa # enable psswordless ssh 
+5) Set up NFS
+zuqingli@stc369a:/$ sudo apt-get install nfs-kernel-server #install nfs server
+zuqingli@stc369a:/$ mkdir stc369LCS # make a shared directory
+zuqingli@stc369a:/$ sudo vim /etc/exports # set up the same for stc369b|c
+/home/stc369a/stc369LCS *(rw.sync,no_root_suqash,no_subtree_check)
+zuqingli@stc369a:/$ exportfs -a 
+zuqingli@stc369a:/$ sudo service nfs-kernel-server restart
+zuqingli@stc369a:/$ sudo vim /etc/exports #set up the same for stc369b|c
+/home/stc369a/stc369LCS *(rw.sync,no_root_suqash,no_subtree_check)
+zuqingli@stc369a:/$ exportfs -a 
+zuqingli@stc369a:/$ sudo service nfs-kernel-server restart
+zuqingli@stc369a:/$ sudo apt-get install nfs-common #install nfs client
+zuqingli@stc369a:/$ mkdir stc369LCS
+zuqingli@stc369a:/$ sudo mount -t nfs master:/home/stc369a/stc369LCS ~/ stc369LCS
+zuqingli@stc369a:/$ sudo vim /etc/fstab
+master:/home/stc369a/stc369LCS /home/stc369a/stc369LCS nfs
+6) Running MPI on cluster
+zuqingli@stc369a:/$ cd /stc369LCS
+zuqingli@stc369a:/$ mpicc xxx.c
+zuqingli@stc369a:/$ time mpirun -np 3 --hosts stc369a, stc369b, stc369c ./a.out
+A.3 OpenMP Setup
+OpenMP comes with gcc compiler auomatically. Therefore, we don't need to install it separately. 
+zuqingli@stc369a:/$ gcc -openmp xxx.c # compile your code
+zuqingli@stc369a:/$ time ./a.out 4 # 4 presents the number of threads to be used
+A.4 OpenMPI & OpenMP-based Hybrid Setup
+zuqingli@stc369a:/$ mpicc -openmp xxx.c # compile your code
+zuqingli@stc369a:/$ time mpirun -np 3 --hosts stc369a, stc369b, stc369c ./a.out
+A.5 OpenACC Setup
+OpenACC relies on CUDA to run its environment. Therefore, we need to first set up CUDA toolkit.
+1) CUDA setup
+zuqingli@stc369gpu:/$ sudo dpkg -i cuda_7.5.18_linux.deb
+zuqingli@stc369gpu:/$ sudo apt-get update
+zuqingli@stc369gpu:/$ sudo apt-get install cuda
+zuqingli@stc369gpu:/$ sudo vim /etc/profile
+  export PATH=/usr/local/cuda-7.5/bin:$PATH
+  export LD_LIBRARY_PATH=/usr/local/cuda-7.5/lib64:$LD_LIBRARY_PATH
+2) OpenACC setup
+zuqingli@stc369gpu:/$ tar -zxvf <tarfile>.tar.gz
+zuqingli@stc369gpu:/$ sudo ./install
+zuqingli@stc369gpu:/$ sudo vim /etc/profile
+  export PGI=/opt/pgi;
+  export PATH=/opt/pgi/linux86-64/16.3/bin:$PATH;
+  export MANPATH=$MANPATH:/opt/pgi/linux86-64/16.3/man;
+  export LM_LICENSE_FILE=$LM_LICENSE_FILE:/opt/pgi/license.dat;
+3) Running OpenACC program
+zuqingli@stc369gpu:/$ pgcc -acc -ta=tesla -Minfo=accel xxx.c
+zuqingli@stc369gpu:/$ time ./a.out
+
+
+REFERENCES
+[1] R. Birke, M. Bj rkqvist , L.Y. Chen , E. Smirni, T. Engbersen, "(Big) Data in a 
+     Virtualized World: Volume, Velocity, and Variety in Cloud Datacenters," Proceedings 
+     of the 12th USENIX conference on File and Storage Technologies, February 17-20, 
+     2014, Santa Clara, CA.
+[2] OpenMPI, https://www.open-mpi.org/.
+[3] Apache Hadoop, http://hadoop.apache.org/.
+[4] Apache Storm, http://storm.apache.org/
+[5] Apache Spark, https://spark.apache.org/.
+[6] L. Dagum and R. Menon, "OpenMP: An Industry-Standard API for Shared-Memory 
+     Programming," IEEE Computational Science and Engineering, 5:46-55, 1998.
+[7] G. Jayshree, P. Jitendra, K. Madhura, B. Amit, "GPGPU Processing in CUDA 
+     Architecture", arXiv preprint arXiv, Vol.3, No.1, January 2012.
+[8] R. Reyes, I. Lopez, J. Fumero, and F. Sande, "A Comparative Study of OpenACC 
+     Implementations," Jornadas Sarteco, 2012.
+[9] A. Ozsoy, A. Chauhan, M. Swany, "Achieving TeraCUPS on Longest Common 
+     Subsequence Problem Using GPGPUs," Proceedings of the 2013 International 
+     Conference on Parallel and Distributed Systems, p.69-77, December 15-18, 2013
+[10] K. Arabi, M. Ossman, L.F. Hussein, "Fast Longest Common Subsequences for 
+       Bioinformatics Dynamic Programming." International Journal of Computer 
+       Applications 57.22, 2012
+[11] A. Guo, H. Siegelmann, "Time-Warped Longest Common Subsequence  
+       Algorithm for Music Retrieval," Spain: Universitat Pompeu Fabra, pp. 258 261, Oct. 
+       2004.
+[12] C.Y. Lin, F. J. Och, "Automatic evaluation of machine translation quality using 
+        longest common subsequence and skip-bigram statistics," in Proceedings of ACL 04. 
+        Stroudsburg, PA, USA: Association for Computational Linguistics, 2004.
+[13] E. G. M. Petrakis, "Image representation, indexing and retrieval based on spatial 
+        relationships and properties of objects," 1993.
+[14] X. Tian, Y. Song, X.Wang, X. Gong, "Shortest path based potential common 
+       friend recommendation in social networks," in Cloud and Green Computing, 2nd 
+       International Conf. on, pp. 541-548, 2012.
+[15] S.Y. Lu, K.S. Fu, "A sentence-to-sentence clustering procedure for pattern 
+       analysis," Systems, Man and Cybernetics, IEEE Transactions on, vol. 8, no. 5, pp. 381-
+       389, 1978.
+[16] T. S. Han, S.K. Ko, J. Kang, "Efficient subsequence matching using the longest 
+        common subsequence with a dual match index," in Proceedings of MLDM 07. Berlin, 
+        Heidelberg: Springer-Verlag, pp. 585-600, 2007.
+[17] T. K. Sellis, "Multiple-query optimization," ACM Trans. Database Syst., vol. 13, no. 
+        1, pp. 2352, Mar. 1988.
+[18] B. Daga, A. Bhute, A. Ghatol, "Implementation of Parallel Image Processing 
+        Using NVIDIA GPU Framework," in Proceedings of International Conference on 
+        Advances in Computing, Communication and Control, Mumbai, India, pp. 457-464, 
+        January 2011.
+[19] L. Jian, C. Wang, Y. Liu, S. Liang, W. Yi, Y. Shi, "Parallel data mining techniques 
+       on graphics processing unit with compute unified device architecture (CUDA)." The 
+       Journal of Supercomputing, pp. 1-26, 2011.
+[20] L. Wang et al. "Fast Parallel Suffix Array on the GPU." In Euro-Par. 2015.
+[21] P. Pospichal, J. Jaros, J. Schwarz, "Parallel genetic algorithm on the CUDA 
+       architecture," Proceedings of the 2010 international conference on Applications of 
+       Evolutionary Computation, Istanbul, Turkey, April 07-09, 2010.
+[22] Thomas H. Cormen, Clifford Stein, Ronald L. Rivest, Charles E. Leiserson, 
+        Introduction to Algorithms 3rd, MII press, 2009
+[23] J.G. Fiscus, J. Ajot, N. Radde, C. Laprun, "Multiple dimension Levenshtein edit 
+       distance calculations for evaluating automatic speech recognition systems during 
+       simultaneous speech," in Proc. LREC, 2006.
+[24] K. Balhaf, M. A. Shehab, W. T. Al-Sarayrah, M. Al-Ayyoub, M. Al-Saleh, Y. 
+       Jararweh, "Using gpus to speed-up levenshtein edit distance computation", 2016 7th 
+       International Conference on Information and Communication Systems (ICICS). IEEE, 
+       pp. 80-84, 2016.
+[25] H. Kimm, F. Lee, "Dynamic programming approach on pipelined optical bus systems 
+       for finding the longest upsequence", in Control System, Computing and Engineering 
+       (ICCSCE), 2011 IEEE International Conference, 25-27 Nov. 2011
+[26] I.M. Bomze, M. Budinich, P.M. Pardalos, M. Pelillo, "The Maximum Clique 
+       Problem," Handbook of Combinatorial Optimization, 1999.
+[27] H. Kim, "Finding a Maximum Independent Set in a Permutation Graph," Information 
+        Processing Letters, 36(1):19-23, 1990.
+[28] M. Farber, J.M. Keil, "Domination in permutation graphs," J. Algorithms 6 (1985) 
+        309-321.
+[29] D. S. Hirschberg, "Algorithms for the longest common subsequence problem," J 
+       Assoc. Comput. Mach.,24 (1977), 664-675.
+[30] W. Masek, M. Paterson, "A faster algorithm computing string edit Distances," Journal 
+       of Computer and System Sciences, 20, 18-31. 1980.
+[31] D. Maier, "The complexity of some problems on subsequences and supersequences," 
+       Journal of the ACM, vol. 25, pp. 322-336, Apr. 1978.
+[32] K.N. Babu, S. Saxena, "Parallel Algorithms for the Longest Common Subsequence 
+        Problem", Proc. Fourth Int'l Conf. High Performance Computing, pp. 120-125, 1997.
+[33] L. Allison, T.I. Dix, "A bit-string longest-common-subsequence algorithm," 
+       Information Processing Letters, v.23 n.6, p.305-310, Dec. 3, 1986
+[34] A. Apostolico, M.J. Atallah, L.L. Larmore, S. McFaddin. "Efficient parallel 
+       algorithms for string editing and related problems." SIAM J. Comput., 19:968-988, 
+       September 1990.
+[35] P. Krusche, A. Tiskin. "Efficient longest common subsequence computation using 
+       bulk-synchronous parallelism." In ICCSA (5), volume 3984 of Lecture Notes in 
+       Computer Science, pages 165-174. Springer, 2006.
+[36] Y. S. Jiaoyun Yang, Yun Xu, "An Efficient Parallel Algorithm for Longest Common 
+       Subsequence Problem on GPUs," Processings of the World Congress on Engineering, 
+       vol. 1, 2010.
+[37] J. Kloetzli, B. Strege, J. Decker, and M. Olano, "Parallel longest common subsequence 
+       using graphics hardware," Eurographics Symposium on Parallel Graphics and 
+       Visualization, 2008.
+[38] R. Xu, S. Chandrasekaran, B. Chapman, "Exploring Programming Multi-GPUs Using 
+       OpenMP and OpenACC-Based Hybrid Model," Proceedings of the 2013 IEEE 27th 
+       International Symposium on Parallel and Distributed Processing Workshops and PhD 
+       Forum, p.1169-1176, May 20-24, 2013
+[39] A. Qawasmeh, B. Chapman, M. Hugues, H. Calandra, "GPU Technology 
+       Applied to Reverse Time Migration and Seismic Modeling via OpenACC." PMAM 
+       15, pages 75-85, New York, NY, USA, 2015. ACM.
+[40] J.M. Marko, D.D. Darija, V.T. Milo, "An Analysis of OpenACC Programming Model:  
+       Image Processing Algorithms as a Case Study," Telfor Journal, Vol. 6, No. 1, 2014
+[41] Swiss-Prot, http://www.uniprot.org/.
+21
+
+
+
+
+
