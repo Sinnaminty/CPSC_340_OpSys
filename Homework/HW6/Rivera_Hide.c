@@ -1,5 +1,6 @@
 #include <fcntl.h>
 #include <stddef.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/stat.h>
@@ -13,82 +14,30 @@
 #define INFILE_TXT "nVidia-openACC.txt"
 #define OUTFILE "Santorini-Stega.bmp"
 
-void print_binary(char c) {
-  for (int i = 7; i >= 0; i--) {
-    printf("%d", (c << i) & 1);
-  }
-  printf("\n");
-}
-
-long get_file_size(const char *fn) {
-  struct stat file_stats;
-  if (stat(fn, &file_stats) == 0) {
-    return file_stats.st_size;
-  } else {
-    fprintf(stderr, "get_file_size error!\n");
-    exit(1);
-  }
-}
-
 int main(int argc, char *argv[]) {
-  int in_fd;
-  int rd_count;
-
-  long size = get_file_size(INFILE_TXT);
-  printf("File size of %s: %ld bytes\n", INFILE_TXT, size);
-
-  size_t stega_stream_buffer_size = (size + 7) / 8;
-  printf("stega_stream_buffer_size: %ld\n", stega_stream_buffer_size);
-  char stega_stream[stega_stream_buffer_size];
-
-  // buffer init 0
-  for (size_t i = 0; i < stega_stream_buffer_size; i++) {
-    stega_stream[i] = 0;
-  }
-
-  in_fd = open(INFILE_TXT, O_RDONLY);
-  if (in_fd < 0) {
-    fprintf(stderr, "Error opening txt infile.\n");
-    exit(1);
-  }
-
-  char buffer[BUF_SIZE];
-  /** read loop for breaking txt into a stream */
-  while (1) {
-    size_t buf_pointer = 0;
-    rd_count = read(in_fd, buffer, 50);
-    if (rd_count <= 0)
-      break;
-
-    for (size_t i = 0; i < rd_count; i++) {
-      // isolates lsb
-      char lsb = buffer[i] & 0x01;
-      size_t byte_index = i / 8;
-      size_t bit_index = i % 8;
-      printf("lsb: %d\n", lsb);
-      printf("modified lsb: ");
-      print_binary(lsb << 7 - bit_index);
-      printf("\n");
-      stega_stream[byte_index + buf_pointer] |= (lsb << 7 - bit_index);
-      print_binary(stega_stream[byte_index]);
+  char *stega_buf = 0;
+  long stega_buf_len;
+  FILE *f = fopen(INFILE_TXT, "rb");
+  if (f) {
+    fseek(f, 0, SEEK_END);
+    stega_buf_len = ftell(f);
+    fseek(f, 0, SEEK_SET);
+    stega_buf = (char *)malloc((stega_buf_len + 1) * sizeof(char));
+    if (stega_buf) {
+      fread(stega_buf, sizeof(char), stega_buf_len, f);
     }
-    exit(0);
-    buf_pointer += rd_count;
+    fclose(f);
+  }
+  stega_buf[stega_buf_len] = '\0';
+
+  printf("len: %ld\n", stega_buf_len);
+
+  for (size_t i = 0; i < stega_buf_len; i++) {
+    printf("%c", stega_buf[i]);
   }
 
-  // hopefully all of the bytes we care about are in stega_stream;
-  close(in_fd);
+  int in_fd;
 
-  printf("Packed LSB buffer: (in bits): ");
-  for (size_t i = 0; i < size; i++) {
-    size_t byte_index = i / 8;
-    size_t bit_index = i % 8;
-    char bit = (stega_stream[byte_index] >> bit_index) & 0x01;
-    printf("%d", bit);
-  }
-  printf("\n");
-  exit(0);
-  ///////
   in_fd = open(INFILE_BMP, O_RDONLY);
   if (in_fd < 0) {
     fprintf(stderr, "Error opening bmp infile.\n");
@@ -96,23 +45,37 @@ int main(int argc, char *argv[]) {
   }
 
   int out_fd;
-  int wt_count;
-
   out_fd = creat(OUTFILE, OUTPUT_MODE);
   if (out_fd < 0) {
     fprintf(stderr, "Error creating outfile.\n");
     exit(1);
   }
 
+  char buffer[BUF_SIZE];
   /* exahusts 54 bytes */
   read(in_fd, buffer, HEADER_SKIP);
   write(out_fd, buffer, HEADER_SKIP);
 
+  int rd_count;
+  int wt_count;
+  size_t stega_buf_index = 0;
+
   /* read loop */
+
   while (1) {
     rd_count = read(in_fd, buffer, BUF_SIZE);
     if (rd_count <= 0)
       break;
+
+    // inject bits into our buffer.
+    for (size_t i = 0; i < rd_count; i++) {
+      size_t byte_index = i / 8;
+      size_t bit_index = i % 8;
+      buffer[i] |=
+          (stega_buf[stega_buf_index + byte_index] >> (7 - bit_index)) & 0x01;
+    }
+
+    stega_buf_index += rd_count;
 
     wt_count = write(out_fd, buffer, rd_count);
     if (wt_count <= 0) {
