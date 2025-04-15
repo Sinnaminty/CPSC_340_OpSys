@@ -1,6 +1,9 @@
 #include <fcntl.h>
+#include <stddef.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <sys/stat.h>
 #include <sys/types.h>
 #include <unistd.h>
 
@@ -11,33 +14,39 @@
 #define OUTFILE "Stegano.txt"
 
 int main(int argc, char *argv[]) {
-  int in_fd, out_fd, rd_count, wt_count;
-  char buffer[BUF_SIZE];
-
+  int in_fd;
   in_fd = open(INFILE, O_RDONLY);
   if (in_fd < 0) {
-    fprintf(stderr, "Error opening infile.\n");
+    fprintf(stderr, "Error opening bmp infile.\n");
     exit(1);
   }
 
+  int out_fd;
   out_fd = creat(OUTFILE, OUTPUT_MODE);
   if (out_fd < 0) {
     fprintf(stderr, "Error creating outfile.\n");
     exit(1);
   }
 
+  char buffer[BUF_SIZE];
   /* exahusts 54 bytes */
   read(in_fd, buffer, HEADER_SKIP);
   // write(out_fd, buffer, HEADER_SKIP);
 
+  int rd_count;
+  int wt_count;
+  size_t stega_buf_index = 0;
+
   /* read loop */
+
+  char *stor_buff[BUF_SIZE];
+
   while (1) {
     rd_count = read(in_fd, buffer, BUF_SIZE);
     if (rd_count <= 0)
       break;
 
-    for (int i = 0; i < rd_count; i++) {
-      buffer[i] = buffer[i] & 0x01;
+    for (size_t i = 0; i < rd_count; i++) {
     }
 
     wt_count = write(out_fd, buffer, rd_count);

@@ -28,16 +28,11 @@ int main(int argc, char *argv[]) {
     }
     fclose(f);
   }
+
+  // null terminated :D
   stega_buf[stega_buf_len] = '\0';
 
-  printf("len: %ld\n", stega_buf_len);
-
-  for (size_t i = 0; i < stega_buf_len; i++) {
-    printf("%c", stega_buf[i]);
-  }
-
   int in_fd;
-
   in_fd = open(INFILE_BMP, O_RDONLY);
   if (in_fd < 0) {
     fprintf(stderr, "Error opening bmp infile.\n");
@@ -68,14 +63,17 @@ int main(int argc, char *argv[]) {
       break;
 
     // inject bits into our buffer.
-    for (size_t i = 0; i < rd_count; i++) {
-      size_t byte_index = i / 8;
-      size_t bit_index = i % 8;
-      buffer[i] |=
-          (stega_buf[stega_buf_index + byte_index] >> (7 - bit_index)) & 0x01;
-    }
+    if (stega_buf_index < stega_buf_len) {
+      for (size_t i = 0; i < rd_count; i++) {
+        size_t byte_index = i / 8;
+        size_t bit_index = i % 8;
+        if (byte_index != 0 && byte_index % 8 == 0) {
+          stega_buf_index++;
+        }
 
-    stega_buf_index += rd_count;
+        buffer[i] |= (stega_buf[stega_buf_index] >> (7 - bit_index)) & 0x01;
+      }
+    }
 
     wt_count = write(out_fd, buffer, rd_count);
     if (wt_count <= 0) {
