@@ -1,0 +1,91 @@
+Script started on 2025-04-15 16:57:49-04:00 [TERM="xterm-256color" TTY="/dev/pts/1" COLUMNS="192" LINES="36"]
+[1m[38;5;118m[7m%[27m[1m[38;5;118m[0m[38;5;118m                                                                                                                                                                                                ]2;sin@uwu:~/repos/class/CPSC_340_OpSys/Class/4-15]1;..ys/Class/4-15]7;file://uwu/home/sin/repos/class/CPSC_340_OpSys/Class/4-15\[0m[27m[24m[J[38;5;135msin[00m in [38;5;118m~/repos/class/CPSC_340_OpSys/Class/4-15[00m on [38;5;81mmain[38;5;161m ●[00m[38;5;166m λ[00m [K[?1h=[?2004hssudo useradd -G sin              s  ggroups[?1l>[?2004l
+]2;groups]1;groupsdocker wheel sin
+[1m[7m%[27m[1m[0m                                                                                                                                                                                                ]2;sin@uwu:~/repos/class/CPSC_340_OpSys/Class/4-15]1;..ys/Class/4-15]7;file://uwu/home/sin/repos/class/CPSC_340_OpSys/Class/4-15\[0m[27m[24m[J[38;5;135msin[00m in [38;5;118m~/repos/class/CPSC_340_OpSys/Class/4-15[00m on [38;5;81mmain[38;5;161m ●[00m[38;5;166m λ[00m [K[?1h=[?2004hssudo useradd -G sin newuser[?1l>[?2004l
+]2;sudo useradd -G sin newuser]1;useradd[sudo] password for sin: 
+[1m[7m%[27m[1m[0m                                                                                                                                                                                                ]2;sin@uwu:~/repos/class/CPSC_340_OpSys/Class/4-15]1;..ys/Class/4-15]7;file://uwu/home/sin/repos/class/CPSC_340_OpSys/Class/4-15\[0m[27m[24m[J[38;5;135msin[00m in [38;5;118m~/repos/class/CPSC_340_OpSys/Class/4-15[00m on [38;5;81mmain[38;5;161m ●[00m[38;5;166m λ[00m [K[?1h=[?2004heecho -e ""C"o"m"p"u"e"t"" " t"e"r" "S"c"i"e"n"c"e"\"n" "s"i"n"" " " " s"i"n"\"n"" "  "&" "n"e"w"u"s"e"r"\"n"C"" 1"5" "" /"" -"0"4"0"" -"2"0"2"5"\"n"C"P"S"C"[50D[P[49C  340, Sprint g 2025""Computer Science\nsin & newuser\n15-04-2025\nCPSC340, Spring 2025"[66D[1C[1C[1C[1C[1C[1C[1C[1C[1C[1C[1C[1C[1C[1C[1C[1C[1C[1C[1C[1C[1C[1C[1C[1C[1C[1C[1C[1C[1C[1C[1C[1C[1C[1C[1C[1C[1C[1C[1C[1C[1C[1C[1C[1C[1C[1C[1C[1C[1C[1C[1C[1C[1C[1C[1C[1C[1C[1C[1C[1C[1C[1C[1C[1C[1C[1C > file1_04-15-2025[?1l>[?2004l
+]2;echo -e "Computer Science\nsin & newuser\n15-04-2025\nCPSC340, Spring 2025" >]1;echo[1m[7m%[27m[1m[0m                                                                                                                                                                                                ]2;sin@uwu:~/repos/class/CPSC_340_OpSys/Class/4-15]1;..ys/Class/4-15]7;file://uwu/home/sin/repos/class/CPSC_340_OpSys/Class/4-15\[0m[27m[24m[J[38;5;135msin[00m in [38;5;118m~/repos/class/CPSC_340_OpSys/Class/4-15[00m on [38;5;81mmain[38;5;161m ●[00m[38;5;166m λ[00m [K[?1h=[?2004hlls -l file1_04-15-2025[1m [0m[0m [?1l>[?2004l
+]2;ls --color=tty -l file1_04-15-2025]1;ls-rw-r--r-- 1 sin sin 63 Apr 15 17:00 file1_04-15-2025
+[1m[7m%[27m[1m[0m                                                                                                                                                                                                ]2;sin@uwu:~/repos/class/CPSC_340_OpSys/Class/4-15]1;..ys/Class/4-15]7;file://uwu/home/sin/repos/class/CPSC_340_OpSys/Class/4-15\[0m[27m[24m[J[38;5;135msin[00m in [38;5;118m~/repos/class/CPSC_340_OpSys/Class/4-15[00m on [38;5;81mmain[38;5;161m ●[00m[38;5;166m λ[00m [K[?1h=[?2004hcchmod 640 file1_04-15-2025[1m [0m[0m [?1l>[?2004l
+]2;chmod 640 file1_04-15-2025]1;chmod[1m[7m%[27m[1m[0m                                                                                                                                                                                                ]2;sin@uwu:~/repos/class/CPSC_340_OpSys/Class/4-15]1;..ys/Class/4-15]7;file://uwu/home/sin/repos/class/CPSC_340_OpSys/Class/4-15\[0m[27m[24m[J[38;5;135msin[00m in [38;5;118m~/repos/class/CPSC_340_OpSys/Class/4-15[00m on [38;5;81mmain[38;5;161m ●[00m[38;5;166m λ[00m [K[?1h=[?2004hlls -l 
+[J[0mfile1_04-15-2025       [JRivera_04-15-2025.txt[J[A[0m[27m[24m[59Cls -l[K[1Cfile1_04-15-2025
+[J[7mfile1_04-15-2025     [0m  [JRivera_04-15-2025.txt[J[A[0m[27m[24m[59Cls -l file1_04-15-2025[K
+[7mfile1_04-15-2025     [0m  [7mfile1_04-15-2025     [0m  [A[0m[27m[24m[59Cls -l file1_04-15-2025[K
+[J[A[81C[1m [0m[0m [?1l>[?2004l
+[J]2;ls --color=tty -l file1_04-15-2025]1;ls-rw-r----- 1 sin sin 63 Apr 15 17:00 file1_04-15-2025
+[1m[7m%[27m[1m[0m                                                                                                                                                                                                ]2;sin@uwu:~/repos/class/CPSC_340_OpSys/Class/4-15]1;..ys/Class/4-15]7;file://uwu/home/sin/repos/class/CPSC_340_OpSys/Class/4-15\[0m[27m[24m[J[38;5;135msin[00m in [38;5;118m~/repos/class/CPSC_340_OpSys/Class/4-15[00m on [38;5;81mmain[38;5;161m ●[00m[38;5;166m λ[00m [K[?1h=[?2004hcchmod 660 file1_04-15-2025[1m [0m[0m [?1l>[?2004l
+]2;chmod 660 file1_04-15-2025]1;chmod[1m[7m%[27m[1m[0m                                                                                                                                                                                                ]2;sin@uwu:~/repos/class/CPSC_340_OpSys/Class/4-15]1;..ys/Class/4-15]7;file://uwu/home/sin/repos/class/CPSC_340_OpSys/Class/4-15\[0m[27m[24m[J[38;5;135msin[00m in [38;5;118m~/repos/class/CPSC_340_OpSys/Class/4-15[00m on [38;5;81mmain[38;5;161m ●[00m[38;5;166m λ[00m [K[?1h=[?2004hlls -l 
+[J[0mfile1_04-15-2025       [JRivera_04-15-2025.txt[J[A[0m[27m[24m[59Cls -l[K[1Cfile1_04-15-2025
+[J[7mfile1_04-15-2025     [0m  [JRivera_04-15-2025.txt[J[A[0m[27m[24m[59Cls -l file1_04-15-2025[K
+[7mfile1_04-15-2025     [0m  [7mfile1_04-15-2025     [0m  [A[0m[27m[24m[59Cls -l file1_04-15-2025[K
+[J[A[81C[1m [0m[0m [?1l>[?2004l
+[J]2;ls --color=tty -l file1_04-15-2025]1;ls-rw-rw---- 1 sin sin 63 Apr 15 17:00 file1_04-15-2025
+[1m[7m%[27m[1m[0m                                                                                                                                                                                                ]2;sin@uwu:~/repos/class/CPSC_340_OpSys/Class/4-15]1;..ys/Class/4-15]7;file://uwu/home/sin/repos/class/CPSC_340_OpSys/Class/4-15\[0m[27m[24m[J[38;5;135msin[00m in [38;5;118m~/repos/class/CPSC_340_OpSys/Class/4-15[00m on [38;5;81mmain[38;5;161m ●[00m[38;5;166m λ[00m [K[?1h=[?2004hcchmod 600 
+[J[0mfile1_04-15-2025       [JRivera_04-15-2025.txt[J[A[0m[27m[24m[59Cchmod 600[K[1Cfile1_04-15-2025
+[J[7mfile1_04-15-2025     [0m  [JRivera_04-15-2025.txt[J[A[0m[27m[24m[59Cchmod 600 file1_04-15-2025[K
+[7mfile1_04-15-2025     [0m  [7mfile1_04-15-2025     [0m  [A[0m[27m[24m[59Cchmod 600 file1_04-15-2025[K
+[J[A[85C[1m [0m[0m [?1l>[?2004l
+[J]2;chmod 600 file1_04-15-2025]1;chmod[1m[7m%[27m[1m[0m                                                                                                                                                                                                ]2;sin@uwu:~/repos/class/CPSC_340_OpSys/Class/4-15]1;..ys/Class/4-15]7;file://uwu/home/sin/repos/class/CPSC_340_OpSys/Class/4-15\[0m[27m[24m[J[38;5;135msin[00m in [38;5;118m~/repos/class/CPSC_340_OpSys/Class/4-15[00m on [38;5;81mmain[38;5;161m ●[00m[38;5;166m λ[00m [K[?1h=[?2004hlls -l
+[0m-A  -- list all except . and ..
+-a  -- list entries starting with .
+-B  -- don't list entries ending with ~
+-b  -- print octal escapes for control characters
+-c  -- status change time
+-D  -- generate output designed for Emacs' dired mode
+-d  -- list directory entries instead of contents
+-F  -- append file type indicators
+-f  -- unsorted, all, short list
+-G  -- inhibit display of group information
+-H  -- follow symlink on the command line
+-h  -- print sizes in human readable form
+-I  -- don't list entries matching pattern
+-i  -- print file inode numbers
+-k  -- use block size of 1k
+-L  -- list referenced file for sym link
+-n  -- numeric uid, gid
+-N  -- print entry names without quoting
+-p  -- append / to directories
+-q  -- hide control chars
+-Q  -- quote names
+-R  -- list subdirectories recursively
+-r  -- reverse sort order
+-s  -- display size of each file in blocks
+-S  -- sort by size
+-t  -- sort by modification time
+-T  -- specify tab size
+-u  -- access time
+-U  -- unsorted
+-v  -- sort by version (filename treated numerically)
+-w  -- specify screen width
+-X  -- sort by extension
+[J-Z  -- print any security context of each file[J[33A[0m[27m[24m[59Cls -l[K 
+[J[J[0mfile1_04-15-2025       [JRivera_04-15-2025.txt[J[A[0m[27m[24m[59Cls -l[K[1Cfile1_04-15-2025
+[J[7mfile1_04-15-2025     [0m  [JRivera_04-15-2025.txt[J[A[0m[27m[24m[59Cls -l file1_04-15-2025[K
+[7mfile1_04-15-2025     [0m  [7mfile1_04-15-2025     [0m  [A[0m[27m[24m[59Cls -l file1_04-15-2025[K
+[J[A[81C[1m [0m[0m [?1l>[?2004l
+[J]2;ls --color=tty -l file1_04-15-2025]1;ls-rw------- 1 sin sin 63 Apr 15 17:00 file1_04-15-2025
+[1m[7m%[27m[1m[0m                                                                                                                                                                                                ]2;sin@uwu:~/repos/class/CPSC_340_OpSys/Class/4-15]1;..ys/Class/4-15]7;file://uwu/home/sin/repos/class/CPSC_340_OpSys/Class/4-15\[0m[27m[24m[J[38;5;135msin[00m in [38;5;118m~/repos/class/CPSC_340_OpSys/Class/4-15[00m on [38;5;81mmain[38;5;161m ●[00m[38;5;166m λ[00m [K[?1h=[?2004huumask[?1l>[?2004l
+]2;umask]1;umask022
+[1m[7m%[27m[1m[0m                                                                                                                                                                                                ]2;sin@uwu:~/repos/class/CPSC_340_OpSys/Class/4-15]1;..ys/Class/4-15]7;file://uwu/home/sin/repos/class/CPSC_340_OpSys/Class/4-15\[0m[27m[24m[J[38;5;135msin[00m in [38;5;118m~/repos/class/CPSC_340_OpSys/Class/4-15[00m on [38;5;81mmain[38;5;161m ●[00m[38;5;166m λ[00m [K[?1h=[?2004huumask 077[?1l>[?2004l
+]2;umask 077]1;umask[1m[7m%[27m[1m[0m                                                                                                                                                                                                ]2;sin@uwu:~/repos/class/CPSC_340_OpSys/Class/4-15]1;..ys/Class/4-15]7;file://uwu/home/sin/repos/class/CPSC_340_OpSys/Class/4-15\[0m[27m[24m[J[38;5;135msin[00m in [38;5;118m~/repos/class/CPSC_340_OpSys/Class/4-15[00m on [38;5;81mmain[38;5;161m ●[00m[38;5;166m λ[00m [K[?1h=[?2004httouch file2_04-15-2026 5[?1l>[?2004l
+]2;touch file2_04-15-2025]1;touch[1m[7m%[27m[1m[0m                                                                                                                                                                                                ]2;sin@uwu:~/repos/class/CPSC_340_OpSys/Class/4-15]1;..ys/Class/4-15]7;file://uwu/home/sin/repos/class/CPSC_340_OpSys/Class/4-15\[0m[27m[24m[J[38;5;135msin[00m in [38;5;118m~/repos/class/CPSC_340_OpSys/Class/4-15[00m on [38;5;81mmain[38;5;161m ●[00m[38;5;166m λ[00m [K[?1h=[?2004hlls -l file2_04-15-2025[1m [0m[0m [?1l>[?2004l
+]2;ls --color=tty -l file2_04-15-2025]1;ls-rw------- 1 sin sin 0 Apr 15 17:02 file2_04-15-2025
+[1m[7m%[27m[1m[0m                                                                                                                                                                                                ]2;sin@uwu:~/repos/class/CPSC_340_OpSys/Class/4-15]1;..ys/Class/4-15]7;file://uwu/home/sin/repos/class/CPSC_340_OpSys/Class/4-15\[0m[27m[24m[J[38;5;135msin[00m in [38;5;118m~/repos/class/CPSC_340_OpSys/Class/4-15[00m on [38;5;81mmain[38;5;161m ●[00m[38;5;166m λ[00m [K[?1h=[?2004huumask[?1l>[?2004l
+]2;umask]1;umask077
+[1m[7m%[27m[1m[0m                                                                                                                                                                                                ]2;sin@uwu:~/repos/class/CPSC_340_OpSys/Class/4-15]1;..ys/Class/4-15]7;file://uwu/home/sin/repos/class/CPSC_340_OpSys/Class/4-15\[0m[27m[24m[J[38;5;135msin[00m in [38;5;118m~/repos/class/CPSC_340_OpSys/Class/4-15[00m on [38;5;81mmain[38;5;161m ●[00m[38;5;166m λ[00m [K[?1h=[?2004hlls[?1l>[?2004l
+]2;ls --color=tty]1;lsfile1_04-15-2025  file2_04-15-2025  Rivera_04-15-2025.txt
+[1m[7m%[27m[1m[0m                                                                                                                                                                                                ]2;sin@uwu:~/repos/class/CPSC_340_OpSys/Class/4-15]1;..ys/Class/4-15]7;file://uwu/home/sin/repos/class/CPSC_340_OpSys/Class/4-15\[0m[27m[24m[J[38;5;135msin[00m in [38;5;118m~/repos/class/CPSC_340_OpSys/Class/4-15[00m on [38;5;81mmain[38;5;161m ●[00m[38;5;166m λ[00m [K[?1h=[?2004hssudo chowb n team1 file1_04-15-2025[1m [0m[0m [?1l>[?2004l
+]2;sudo chown team1 file1_04-15-2025]1;chown[sudo] password for sin: 
+chown: invalid user: ‘team1’
+[1m[7m%[27m[1m[0m                                                                                                                                                                                                ]2;sin@uwu:~/repos/class/CPSC_340_OpSys/Class/4-15]1;..ys/Class/4-15]7;file://uwu/home/sin/repos/class/CPSC_340_OpSys/Class/4-15\[0m[27m[24m[J[38;5;135msin[00m in [38;5;118m~/repos/class/CPSC_340_OpSys/Class/4-15[00m on [38;5;81mmain[38;5;161m ●[00m[38;5;166m λ[00m [K[?1h=[?2004hlln file1_04-15-2025[1m [0m[0m file2 1_04-15-2025[1m [0m[0m _hardlink[?1l>[?2004l
+]2;ln file1_04-15-2025 file1_04-15-2025_hardlink]1;ln[1m[7m%[27m[1m[0m                                                                                                                                                                                                ]2;sin@uwu:~/repos/class/CPSC_340_OpSys/Class/4-15]1;..ys/Class/4-15]7;file://uwu/home/sin/repos/class/CPSC_340_OpSys/Class/4-15\[0m[27m[24m[J[38;5;135msin[00m in [38;5;118m~/repos/class/CPSC_340_OpSys/Class/4-15[00m on [38;5;81mmain[38;5;161m ●[00m[38;5;166m λ[00m [K[?1h=[?2004hlln -s file2 1_04-15-2025 file1_04-15-2025_softlink[?1l>[?2004l
+]2;ln -s file1_04-15-2025 file1_04-15-2025_softlink]1;ln[1m[7m%[27m[1m[0m                                                                                                                                                                                                ]2;sin@uwu:~/repos/class/CPSC_340_OpSys/Class/4-15]1;..ys/Class/4-15]7;file://uwu/home/sin/repos/class/CPSC_340_OpSys/Class/4-15\[0m[27m[24m[J[38;5;135msin[00m in [38;5;118m~/repos/class/CPSC_340_OpSys/Class/4-15[00m on [38;5;81mmain[38;5;161m ●[00m[38;5;166m λ[00m [K[?1h=[?2004hlls -il[?1l>[?2004l
+]2;ls --color=tty -il]1;lstotal 24
+893282 -rw------- 2 sin sin    63 Apr 15 17:00 file1_04-15-2025
+893282 -rw------- 2 sin sin    63 Apr 15 17:00 file1_04-15-2025_hardlink
+893300 lrwxrwxrwx 1 sin sin    16 Apr 15 17:04 [0m[01;36mfile1_04-15-2025_softlink[0m -> file1_04-15-2025
+893293 -rw------- 1 sin sin     0 Apr 15 17:02 file2_04-15-2025
+893275 -rw-r--r-- 1 sin sin 12288 Apr 15 17:02 Rivera_04-15-2025.txt
+[1m[7m%[27m[1m[0m                                                                                                                                                                                                ]2;sin@uwu:~/repos/class/CPSC_340_OpSys/Class/4-15]1;..ys/Class/4-15]7;file://uwu/home/sin/repos/class/CPSC_340_OpSys/Class/4-15\[0m[27m[24m[J[38;5;135msin[00m in [38;5;118m~/repos/class/CPSC_340_OpSys/Class/4-15[00m on [38;5;81mmain[38;5;161m ●[00m[38;5;166m λ[00m [K[?1h=[?2004heexit[?1l>[?2004l
+]2;exit]1;exit
+Script done on 2025-04-15 17:05:09-04:00 [COMMAND_EXIT_CODE="0"]
