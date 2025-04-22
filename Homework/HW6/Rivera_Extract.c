@@ -7,7 +7,6 @@
 #include <sys/types.h>
 #include <unistd.h>
 
-#define BUF_SIZE 4096
 #define HEADER_SKIP 54
 #define OUTPUT_MODE 0600
 #define INFILE "Santorini-Stega.bmp"
@@ -28,42 +27,30 @@ int main(int argc, char *argv[]) {
     exit(1);
   }
 
-  char buffer[BUF_SIZE];
   /* exahusts 54 bytes */
-  read(in_fd, buffer, HEADER_SKIP);
-  // write(out_fd, buffer, HEADER_SKIP);
+  lseek(in_fd, HEADER_SKIP, SEEK_SET);
 
-  int rd_count;
-  int wt_count;
-  size_t stega_buf_index = 0;
+  unsigned char bmp_byte;
+  unsigned char ch = 0;
+  int bit_count = 0;
 
-  /* read loop */
+  while (read(in_fd, &bmp_byte, 1) == 1) {
+    /* extract LSB and shift it into correct position */
+    ch = (ch << 1) | (bmp_byte & 0x01);
+    bit_count++;
 
-  char *stor_buff[BUF_SIZE];
-
-  while (1) {
-    rd_count = read(in_fd, buffer, BUF_SIZE);
-    if (rd_count <= 0)
-      break;
-
-    for (size_t i = 0; i < rd_count; i++) {
-    }
-
-    wt_count = write(out_fd, buffer, rd_count);
-    if (wt_count <= 0) {
-      fprintf(stderr, "Write Error.\n");
-      exit(1);
+    if (bit_count == 8) {
+      if (ch == '\0') {
+        break; /* we are donneeee*/
+      }
+      write(out_fd, &ch, 1);
+      bit_count = 0;
+      ch = 0;
     }
   }
-
   close(in_fd);
   close(out_fd);
+  printf("Extraction Successful.\n");
 
-  if (rd_count == 0) {
-    printf("Copy Successful\n");
-    exit(0);
-  } else {
-    fprintf(stderr, "Last Read Error.\n");
-    exit(1);
-  }
+  exit(0);
 }

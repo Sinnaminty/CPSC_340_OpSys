@@ -7,7 +7,6 @@
 #include <sys/types.h>
 #include <unistd.h>
 
-#define BUF_SIZE 4096
 #define HEADER_SKIP 54
 #define OUTPUT_MODE 0600
 #define INFILE_BMP "Santorini.bmp"
@@ -15,68 +14,69 @@
 #define OUTFILE "Santorini-Stega.bmp"
 
 int main(int argc, char *argv[]) {
-  char *stega_buf = 0;
-  long stega_buf_len;
-  FILE *f = fopen(INFILE_TXT, "rb");
-  if (f) {
-    fseek(f, 0, SEEK_END);
-    stega_buf_len = ftell(f);
-    fseek(f, 0, SEEK_SET);
-    stega_buf = (char *)malloc((stega_buf_len + 1) * sizeof(char));
-    if (stega_buf) {
-      fread(stega_buf, sizeof(char), stega_buf_len, f);
-    }
-    fclose(f);
+  FILE *txt_file = fopen(INFILE_TXT, "rb");
+  if (!txt_file) {
+    fprintf(stderr, "Error Opening Text File.\n");
+    exit(1);
   }
 
-  // null terminated :D
-  stega_buf[stega_buf_len] = '\0';
+  fseek(txt_file, 0, SEEK_END);
+  long text_len = ftell(txt_file);
+  fseek(txt_file, 0, SEEK_SET);
 
-  int in_fd;
-  in_fd = open(INFILE_BMP, O_RDONLY);
+  /* include space for null terminator */
+  char *text_buf = (char *)malloc(text_len + 1);
+  if (!text_buf) {
+    fprintf(stderr, "Malloc Error!!\n");
+    fclose(txt_file);
+    exit(1);
+  }
+
+  fread(text_buf, 1, text_len, txt_file);
+  fclose(txt_file);
+
+  text_buf[text_len] = '\0';
+
+  int in_fd = open(INFILE_BMP, O_RDONLY);
   if (in_fd < 0) {
-    fprintf(stderr, "Error opening bmp infile.\n");
+    fprintf(stderr, "Error opening bmp file.\n");
     exit(1);
   }
 
-  int out_fd;
-  out_fd = creat(OUTFILE, OUTPUT_MODE);
+  int out_fd = creat(OUTFILE, OUTPUT_MODE);
   if (out_fd < 0) {
-    fprintf(stderr, "Error creating outfile.\n");
+    fprintf(stderr, "Error creating output bmp file.\n");
+    close(in_fd);
     exit(1);
   }
 
-  char buffer[BUF_SIZE];
-  /* exahusts 54 bytes */
-  read(in_fd, buffer, HEADER_SKIP);
-  write(out_fd, buffer, HEADER_SKIP);
+  /* copy header */
+  char header[HEADER_SKIP];
+  if (read(in_fd, header, HEADER_SKIP) != HEADER_SKIP) {
+    fprintf(stderr, "Error reading bmp header.\n");
+    exit(1);
+  }
+  write(out_fd, header, HEADER_SKIP);
 
-  int rd_count;
-  int wt_count;
-  size_t stega_buf_index = 0;
+  unsigned char bmp_byte;
+  size_t text_index = 0;
+  int bit_index = 7;
 
-  /* read loop */
+  while (read(in_fd, &bmp_byte, 1) == 1) {
+    if (text_index <= text_len) {
+      /* clear LSB */
+      bmp_byte &= 0xFE;
+      /* then set it */
+      bmp_byte |= (text_buf[text_index] >> bit_index) & 0x01;
 
-  while (1) {
-    rd_count = read(in_fd, buffer, BUF_SIZE);
-    if (rd_count <= 0)
-      break;
-
-    // inject bits into our buffer.
-    if (stega_buf_index < stega_buf_len) {
-      for (size_t i = 0; i < rd_count; i++) {
-        size_t byte_index = i / 8;
-        size_t bit_index = i % 8;
-        if (byte_index != 0 && byte_index % 8 == 0) {
-          stega_buf_index++;
-        }
-
-        buffer[i] |= (stega_buf[stega_buf_index] >> (7 - bit_index)) & 0x01;
+      bit_index--;
+      if (bit_index < 0) {
+        bit_index = 7;
+        text_index++;
       }
     }
 
-    wt_count = write(out_fd, buffer, rd_count);
-    if (wt_count <= 0) {
+    if (write(out_fd, &bmp_byte, 1) != 1) {
       fprintf(stderr, "Write Error.\n");
       exit(1);
     }
@@ -84,12 +84,8 @@ int main(int argc, char *argv[]) {
 
   close(in_fd);
   close(out_fd);
+  free(text_buf);
 
-  if (rd_count == 0) {
-    printf("Copy Successful\n");
-    exit(0);
-  } else {
-    fprintf(stderr, "Last Read Error.\n");
-    exit(1);
-  }
+  printf("Embedding Successful.\n");
+  exit(0);
 }
